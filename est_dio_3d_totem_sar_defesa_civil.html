@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estúdio 3D - Totem SAR Defesa Civil (NASA Space Apps)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Three.js Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #0b0f17;
+            color: #f8fafc;
+            user-select: none;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            cursor: grab;
+        }
+        #canvas-container:active {
+            cursor: grabbing;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .pulse-red {
+            animation: pulseRed 1.8s infinite;
+        }
+        @keyframes pulseRed {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.4);
+            border-radius: 3px;
+        }
+        .label-3d {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #e0f2fe;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+            transition: opacity 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+        .label-3d::after {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #38bdf8;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden">
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- 3D Exploded View Floating Labels Container -->
+    <div id="labels-container" class="absolute inset-0 pointer-events-none z-10 hidden"></div>
+
+    <!-- Top Header Bar -->
+    <header class="absolute top-3 left-3 right-3 z-20 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+        <div class="glass-panel px-4 py-2.5 rounded-xl flex items-center gap-3 pointer-events-auto shadow-lg">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-amber-500 flex items-center justify-center font-extrabold text-sm tracking-tighter shadow-inner">
+                SAR
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h1 class="font-bold text-sm md:text-base text-white tracking-tight">Totem InSAR Defesa Civil — Manaus</h1>
+                    <span class="text-[10px] mono uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">NASA Space Apps</span>
+                </div>
+                <p class="text-xs text-slate-400">Modelo 3D Interativo • Previsão de Deslizamentos e Terras Caídas via Radar de Abertura Sintética</p>
+            </div>
+        </div>
+
+        <!-- Export & Screenshot Controls -->
+        <div class="glass-panel px-3 py-2 rounded-xl flex items-center gap-2 pointer-events-auto shadow-lg">
+            <button id="btn-screenshot" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-600/60 transition flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Salvar PNG p/ Slide
+            </button>
+            <button id="btn-export-obj" class="px-3 py-1.5 rounded-lg bg-indigo-600/90 hover:bg-indigo-500 text-xs font-semibold text-white transition flex items-center gap-1.5 shadow">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Baixar Modelo .OBJ (Blender/CAD)
+            </button>
+        </div>
+    </header>
+
+    <!-- Left Control Sidebar: Views & SAR States -->
+    <aside class="absolute top-20 left-3 bottom-20 w-72 md:w-80 z-20 flex flex-col gap-3 pointer-events-none overflow-y-auto pr-1">
+        
+        <!-- Camera & Architecture Modes -->
+        <div class="glass-panel p-3.5 rounded-xl pointer-events-auto shadow-lg">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center justify-between">
+                <span>1. Vistas de Engenharia 3D</span>
+                <span class="text-[10px] text-sky-400 mono">CAD / Pitch</span>
+            </h2>
+            <div class="grid grid-cols-2 gap-1.5">
+                <button onclick="setCameraMode('default')" id="cam-default" class="cam-btn px-2.5 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white border border-sky-400/50 transition text-left flex items-center gap-1.5">
+                    <span>🏢</span> Visão Geral
+                </button>
+                <button onclick="setCameraMode('button')" id="cam-button" class="cam-btn px-2.5 py-2 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition text-left flex items-center gap-1.5">
+                    <span>🔴</span> Zoom Botão
+                </button>
+                <button onclick="setCameraMode('screen')" id="cam-screen" class="cam-btn px-2.5 py-2 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 transition text-left flex items-center gap-1.5">
+                    <span>📡</span> Tela InSAR
+                </button>
+                <button onclick="toggleExplodedView()" id="btn-explode" class="px-2.5 py-2 rounded-lg text-xs font-medium bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition text-left flex items-center gap-1.5">
+                    <span>⚙️</span> Vista Explodida
+                </button>
+            </div>
+
+            <!-- Lighting / Environment Switch -->
+            <div class="mt-3 pt-2.5 border-t border-slate-700/60 flex items-center justify-between text-xs">
+                <span class="text-slate-300 font-medium">Auto-Rotação no Pitch</span>
+                <label class="inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="toggle-autorotate" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all relative peer-checked:bg-sky-500"></div>
+                </label>
+            </div>
+        </div>
+
+        <!-- SAR Landslide Simulation Level -->
+        <div class="glass-panel p-3.5 rounded-xl pointer-events-auto shadow-lg">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                <span>2. Simulador de Risco InSAR</span>
+                <span class="text-[10px] mono text-emerald-400" id="sar-band-tag">NISAR Banda-L</span>
+            </h2>
+            <p class="text-[11px] text-slate-400 mb-2.5 leading-relaxed">
+                Altere a leitura de deslocamento milimétrico da encosta para testar o display e o alerta de voz do totem:
+            </p>
+            <div class="flex flex-col gap-1.5">
+                <button onclick="setRiskLevel('green')" id="risk-green" class="risk-btn w-full px-3 py-2 rounded-lg text-xs font-semibold bg-emerald-950/60 hover:bg-emerald-900/70 text-emerald-300 border border-emerald-500/40 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Estável (0.4 mm/mês)</span>
+                    <span class="mono text-[10px] opacity-75">Seguro</span>
+                </button>
+                <button onclick="setRiskLevel('yellow')" id="risk-yellow" class="risk-btn w-full px-3 py-2 rounded-lg text-xs font-semibold bg-amber-950/80 hover:bg-amber-900/80 text-amber-200 border-2 border-amber-400 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span> Atenção (8.2 mm/semana)</span>
+                    <span class="mono text-[10px] opacity-90">Infiltração</span>
+                </button>
+                <button onclick="setRiskLevel('red')" id="risk-red" class="risk-btn w-full px-3 py-2 rounded-lg text-xs font-semibold bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 border border-rose-500/40 transition flex items-center justify-between">
+                    <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Crítico (24.5 mm/dia)</span>
+                    <span class="mono text-[10px] opacity-75">Evacuação</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Accessibility & Language Config -->
+        <div class="glass-panel p-3.5 rounded-xl pointer-events-auto shadow-lg">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
+                <span>3. Acessibilidade e Voz</span>
+                <span class="text-[10px] text-amber-400 mono">Botão Único IP67</span>
+            </h2>
+            <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-300">Modo Alto Contraste (Baixa Visão)</span>
+                    <button id="btn-contrast" onclick="toggleHighContrast()" class="px-2.5 py-1 rounded bg-slate-800 border border-slate-600 text-amber-300 font-semibold text-[11px] hover:bg-slate-700">
+                        Desativado
+                    </button>
+                </div>
+                <div class="text-[11px] text-slate-400 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 leading-relaxed">
+                    <strong class="text-white block mb-0.5">Sonificação "Dancing with SARs":</strong>
+                    Ao apertar o botão, o totem converte a curva de interferometria do radar em frequência sonora antes de ler o boletim da Defesa Civil.
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Right Info Card: Live Telemetry & Audio Transcript -->
+    <aside class="hidden lg:flex absolute top-20 right-3 w-80 z-20 flex-col gap-3 pointer-events-none">
+        <div class="glass-panel p-4 rounded-xl pointer-events-auto shadow-lg">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Telemetria Satélite SAR</span>
+                <span class="text-[10px] mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">Sentinel-1 + NISAR</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs mono mb-3">
+                <div class="bg-slate-900/90 p-2 rounded border border-slate-800">
+                    <span class="text-[10px] text-slate-400 block">DEFORMAÇÃO InSAR</span>
+                    <span id="telemetry-deform" class="text-sm font-bold text-amber-400">-8.2 mm / sem</span>
+                </div>
+                <div class="bg-slate-900/90 p-2 rounded border border-slate-800">
+                    <span class="text-[10px] text-slate-400 block">UMIDADE DO SOLO</span>
+                    <span id="telemetry-moisture" class="text-sm font-bold text-sky-300">78% (Saturado)</span>
+                </div>
+                <div class="bg-slate-900/90 p-2 rounded border border-slate-800">
+                    <span class="text-[10px] text-slate-400 block">COERÊNCIA FASE</span>
+                    <span class="text-sm font-bold text-emerald-400">0.91 γ (Alta)</span>
+                </div>
+                <div class="bg-slate-900/90 p-2 rounded border border-slate-800">
+                    <span class="text-[10px] text-slate-400 block">LOCALIZAÇÃO</span>
+                    <span class="text-xs font-bold text-slate-200">Jorge Teixeira, MAO</span>
+                </div>
+            </div>
+
+            <!-- Live Voice Transcript Box -->
+            <div class="bg-slate-950/90 p-3 rounded-lg border border-slate-800">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Boletim Sonoro (Alto-Falante)</span>
+                    <span id="audio-status-badge" class="text-[10px] mono text-slate-500">Em espera</span>
+                </div>
+                <p id="voice-transcript" class="text-xs text-slate-200 italic leading-relaxed">
+                    "Clique no botão vermelho 3D no totem (ou no botão abaixo) para escutar a sonificação do radar SAR e o alerta falado."
+                </p>
+            </div>
+        </div>
+
+        <!-- Quick Guide for Modeling -->
+        <div class="glass-panel p-3.5 rounded-xl pointer-events-auto shadow-lg text-xs space-y-1.5">
+            <h3 class="font-bold text-white flex items-center gap-1.5">
+                <span>💡</span> Dica para o Pitch do Hackathon
+            </h3>
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+                Ative a <strong>Vista Explodida</strong> ao vivo para mostrar aos juízes que o totem não é apenas uma caixa: ele possui painel solar autônomo, bateria LiFePO4, receptor LoRa/Satélite e botão industrial mecânico IP67 com Braille.
+            </p>
+        </div>
+    </aside>
+
+    <!-- Bottom Center Interactive Trigger Bar -->
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 pointer-events-auto">
+        <button id="btn-trigger-totem" onclick="triggerTotemButton()" class="pulse-red px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-sm md:text-base shadow-2xl border-2 border-red-300/60 flex items-center gap-3 transition transform active:scale-95">
+            <span class="w-4 h-4 rounded-full bg-white animate-ping"></span>
+            <span>APERTE O BOTÃO DO TOTEM (TESTAR ÁUDIO + SAR)</span>
+        </button>
+    </div>
+
+    <!-- Toast Feedback -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 glass-panel px-4 py-2 rounded-full text-xs font-semibold text-sky-300 shadow-xl opacity-0 pointer-events-none transition-opacity duration-300">
+        Ação realizada!
+    </div>
+
+    <script>
+        /**************************************************************
+         * 1. GLOBAL STATE & CONFIGURATION
+         **************************************************************/
+        let scene, camera, renderer, totemGroup;
+        let screenCanvas, screenCtx, screenTexture, screenMesh;
+        let redButtonMesh, ledTipMesh;
+        let raycaster, mouse;
+        
+        // Exploded view parts references and original positions
+        const explodedParts = [];
+        let isExploded = false;
+        let explodeFactor = 0;
+        let targetExplodeFactor = 0;
+
+        // Simulation states
+        let currentRisk = 'yellow'; // 'green', 'yellow', 'red'
+        let highContrastMode = false;
+        let isAutoRotating = false;
+        let isButtonPressed = false;
+        let buttonPressOffset = 0;
+        let clock = new THREE.Clock();
+
+        // Camera Orbit State (Custom Smooth OrbitControls)
+        let spherical = {
+            radius: 6.2,
+            theta: 0.45,
+            phi: 1.38,
+            targetY: 2.1
+        };
+        let targetSpherical = { ...spherical };
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        const RISK_CONFIG = {
+            green: {
+                title: "SOLO ESTÁVEL",
+                subtitle: "Sem deformação crítica InSAR",
+                color: "#10b981",
+                bgBadge: "#064e3b",
+                deform: "0.4 mm / mês",
+                moisture: "42% (Normal)",
+                speech: "Atenção comunidade. Monitoramento por satélite da NASA e Defesa Civil informa: Encosta e barranco estáveis. Nenhuma movimentação de terra detectada nas últimas 72 horas. Situação segura.",
+                freqStart: 260,
+                freqEnd: 330
+            },
+            yellow: {
+                title: "ALERTA: MOVIMENTAÇÃO DO SOLO",
+                subtitle: "Risco Médio • Infiltração Detectada",
+                color: "#f59e0b",
+                bgBadge: "#78350f",
+                deform: "-8.2 mm / sem",
+                moisture: "78% (Saturado)",
+                speech: "Atenção moradores da encosta. O satélite de radar da NASA detectou movimentação milimétrica de oito milímetros no barranco devido ao solo encharcado. Risco médio de deslizamento. Evitem jogar água no barranco e fiquem atentos aos sinais da Defesa Civil.",
+                freqStart: 320,
+                freqEnd: 580
+            },
+            red: {
+                title: "PERIGO: RISCO DE DESLIZAMENTO",
+                subtitle: "Deformação Acelerada InSAR • Evacuar",
+                color: "#ef4444",
+                bgBadge: "#7f1d1d",
+                deform: "-24.5 mm / dia",
+                moisture: "94% (Crítico)",
+                speech: "Alerta vermelho de emergência da Defesa Civil! O radar de satélite detectou deslocamento grave de vinte e quatro milímetros no solo da encosta. Risco iminente de deslizamento ou terras caídas. Dirijam-se imediatamente ao ponto de apoio seguro da comunidade!",
+                freqStart: 440,
+                freqEnd: 880
+            }
+        };
+
+        /**************************************************************
+         * 2. PROCEDURAL TEXTURES (HTML5 CANVAS FOR 3D MATERIALS)
+         **************************************************************/
+        
+        // Creates the dynamic Display Screen Canvas Texture (InSAR Slope Graphic)
+        function initScreenCanvas() {
+            screenCanvas = document.createElement('canvas');
+            screenCanvas.width = 512;
+            screenCanvas.height = 768;
+            screenCtx = screenCanvas.getContext('2d');
+            screenTexture = new THREE.CanvasTexture(screenCanvas);
+            screenTexture.anisotropy = 4;
+            updateScreenCanvas();
+        }
+
+        function updateScreenCanvas() {
+            const ctx = screenCtx;
+            const W = screenCanvas.width;
+            const H = screenCanvas.height;
+            const cfg = RISK_CONFIG[currentRisk];
+
+            // Background
+            ctx.fillStyle = highContrastMode ? '#000000' : '#090d16';
+            ctx.fillRect(0, 0, W, H);
+
+            // Top Header
+            ctx.fillStyle = highContrastMode ? '#facc15' : '#1e293b';
+            ctx.fillRect(0, 0, W, 86);
+
+            ctx.fillStyle = highContrastMode ? '#000000' : '#ffffff';
+            ctx.font = 'bold 22px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('MONITORAMENTO DE RISCO', W / 2, 36);
+            ctx.font = 'bold 20px Inter, sans-serif';
+            ctx.fillStyle = highContrastMode ? '#000000' : '#38bdf8';
+            ctx.fillText('DE DESLIZAMENTO • SAR NASA', W / 2, 66);
+
+            // Top Radar InSAR Interferogram Box
+            const mapX = 28, mapY = 104, mapW = 330, mapH = 220;
+            ctx.fillStyle = '#051814';
+            ctx.fillRect(mapX, mapY, mapW, mapH);
+
+            // Simulated SAR Backscatter + Interferometry fringes on hillside
+            for (let i = 0; i < 420; i++) {
+                const px = mapX + Math.random() * mapW;
+                const py = mapY + Math.random() * mapH;
+                const distCenter = Math.hypot(px - (mapX + 170), py - (mapY + 110));
+                if (distCenter < 75 && currentRisk !== 'green') {
+                    ctx.fillStyle = currentRisk === 'red' ? 'rgba(239,68,68,0.55)' : 'rgba(250,204,21,0.5)';
+                } else {
+                    ctx.fillStyle = 'rgba(34,197,94,0.35)';
+                }
+                ctx.fillRect(px, py, 6, 6);
+            }
+
+            // Draw Synthetic Ravine / Slope lines on Radar
+            ctx.strokeStyle = highContrastMode ? '#facc15' : '#a3e635';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(mapX + 30, mapY + 30);
+            ctx.quadraticCurveTo(mapX + 165, mapY + 115, mapX + 150, mapY + 205);
+            ctx.moveTo(mapX + 290, mapY + 45);
+            ctx.quadraticCurveTo(mapX + 175, mapY + 115, mapX + 240, mapY + 195);
+            ctx.stroke();
+
+            // Border of Radar Map
+            ctx.strokeStyle = highContrastMode ? '#facc15' : '#475569';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mapX, mapY, mapW, mapH);
+
+            // Right Color Scale Bar & Icons (matching reference photo!)
+            const barX = 378, barY = 108, barW = 22, barH = 135;
+            const grad = ctx.createLinearGradient(0, barY, 0, barY + barH);
+            grad.addColorStop(0, '#ef4444');
+            grad.addColorStop(0.5, '#facc15');
+            grad.addColorStop(1, '#22c55e');
+            ctx.fillStyle = grad;
+            ctx.fillRect(barX, barY, barW, barH);
+            ctx.strokeStyle = '#ffffff';
+            ctx.strokeRect(barX, barY, barW, barH);
+
+            // Accessibility Icons next to bar
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 28px sans-serif';
+            ctx.fillText('👁️', 455, 145);
+            ctx.fillStyle = '#facc15';
+            ctx.fillText('⚠️', 455, 210);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('🔊', 455, 285);
+
+            // Alert Banner Mid-Screen
+            const banY = 345;
+            ctx.fillStyle = highContrastMode ? '#facc15' : cfg.bgBadge;
+            ctx.fillRect(28, banY, W - 56, 72);
+            ctx.strokeStyle = highContrastMode ? '#ffffff' : cfg.color;
+            ctx.lineWidth = 3;
+            ctx.strokeRect(28, banY, W - 56, 72);
+
+            ctx.fillStyle = highContrastMode ? '#000000' : '#facc15';
+            ctx.textAlign = 'left';
+            ctx.font = 'bold 21px Inter, sans-serif';
+            ctx.fillText('⚠️ ' + cfg.title, 44, banY + 32);
+            ctx.fillStyle = highContrastMode ? '#000000' : '#f8fafc';
+            ctx.font = '600 17px Inter, sans-serif';
+            ctx.fillText(cfg.subtitle, 44, banY + 58);
+
+            // Slope Cross-Section Profile (Barranco / Encosta diagram)
+            const profY = 438, profH = 185;
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(28, profY, W - 56, profH);
+
+            // Draw Green Stable Part of Hill
+            ctx.beginPath();
+            ctx.moveTo(35, profY + profH - 15);
+            ctx.lineTo(35, profY + 45);
+            ctx.quadraticCurveTo(140, profY + 25, 220, profY + 60);
+            ctx.lineTo(220, profY + profH - 15);
+            ctx.closePath();
+            ctx.fillStyle = highContrastMode ? '#22c55e' : '#22c55e';
+            ctx.fill();
+
+            // Draw Yellow Transitional Zone
+            ctx.beginPath();
+            ctx.moveTo(220, profY + profH - 15);
+            ctx.lineTo(220, profY + 60);
+            ctx.lineTo(295, profY + 105);
+            ctx.lineTo(295, profY + profH - 15);
+            ctx.closePath();
+            ctx.fillStyle = '#facc15';
+            ctx.fill();
+
+            // Draw Red/Orange Slippage Toe
+            ctx.beginPath();
+            ctx.moveTo(295, profY + profH - 15);
+            ctx.lineTo(295, profY + 105);
+            ctx.lineTo(435, profY + profH - 18);
+            ctx.closePath();
+            ctx.fillStyle = currentRisk === 'red' ? '#ef4444' : '#ea580c';
+            ctx.fill();
+
+            // Bottom Strata Bar (matching the photo's bottom gauge)
+            const gaugeY = 642, gaugeH = 85;
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(100, gaugeY, 120, gaugeH);
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(220, gaugeY, 75, gaugeH);
+            ctx.fillStyle = currentRisk === 'red' ? '#ef4444' : '#9a3412';
+            ctx.beginPath();
+            ctx.moveTo(295, gaugeY);
+            ctx.lineTo(465, gaugeY + gaugeH);
+            ctx.lineTo(295, gaugeY + gaugeH);
+            ctx.closePath();
+            ctx.fill();
+
+            // Telemetry Footer
+            ctx.fillStyle = highContrastMode ? '#facc15' : '#94a3b8';
+            ctx.font = 'bold 15px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(`InSAR: ${cfg.deform} | SOLO: ${cfg.moisture}`, W / 2, 752);
+
+            if (screenTexture) screenTexture.needsUpdate = true;
+        }
+
+        // Creates the Front Control Panel Texture (Brushed Aluminum + "APERTE PARA OUVIR" + Braille + Speaker Grille + Defesa Civil)
+        function createFrontPanelTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 768;
+            const ctx = canvas.getContext('2d');
+
+            // Metallic Brushed Light Gray Base
+            const grad = ctx.createLinearGradient(0, 0, 512, 768);
+            grad.addColorStop(0, '#cbd5e1');
+            grad.addColorStop(0.5, '#94a3b8');
+            grad.addColorStop(1, '#64748b');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 512, 768);
+
+            // Subtle brushed metal vertical lines
+            ctx.fillStyle = 'rgba(255,255,255,0.06)';
+            for (let i = 0; i < 200; i++) {
+                ctx.fillRect(Math.random() * 512, 0, 1, 768);
+            }
+
+            // Top Text: APERTE PARA OUVIR O ALERTA
+            ctx.fillStyle = '#0f172a';
+            ctx.textAlign = 'center';
+            ctx.font = '900 32px Inter, sans-serif';
+            ctx.fillText('APERTE PARA', 256, 62);
+            ctx.fillText('OUVIR O ALERTA', 256, 100);
+            ctx.font = '700 18px Inter, sans-serif';
+            ctx.fillStyle = '#1e293b';
+            ctx.fillText('PRESS TO LISTEN TO THE ALERT', 256, 128);
+
+            // Simulated Tactile Braille Dots Row above & below button
+            ctx.fillStyle = '#334155';
+            const braillePattern = [1,0,1, 1,1,0, 1,0,0, 1,1,1, 0,1,1, 1,0,1, 1,1,0];
+            for (let i = 0; i < braillePattern.length; i++) {
+                const bx = 135 + i * 12;
+                ctx.beginPath();
+                ctx.arc(bx, 152, 3.2, 0, Math.PI * 2);
+                if (braillePattern[i]) ctx.arc(bx, 162, 3.2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Lower Text below button
+            ctx.fillStyle = '#0f172a';
+            ctx.font = '900 30px Inter, sans-serif';
+            ctx.fillText('APERTE PARA', 256, 465);
+            ctx.fillText('OUVIR O ALERTA', 256, 502);
+            ctx.font = '700 17px Inter, sans-serif';
+            ctx.fillText('PRESS TO LISTEN TO THE ALERT', 256, 528);
+
+            // High-Contrast Speaker Icon
+            ctx.fillStyle = '#0f172a';
+            ctx.beginPath();
+            ctx.moveTo(205, 575);
+            ctx.lineTo(230, 575);
+            ctx.lineTo(258, 550);
+            ctx.lineTo(258, 625);
+            ctx.lineTo(230, 600);
+            ctx.lineTo(205, 600);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sound Waves
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 7;
+            ctx.beginPath();
+            ctx.arc(262, 587, 20, -0.6, 0.6);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(262, 587, 36, -0.7, 0.7);
+            ctx.stroke();
+
+            // Bottom Blue Defesa Civil Banner
+            ctx.fillStyle = '#0c4a6e';
+            ctx.fillRect(28, 648, 456, 98);
+            ctx.strokeStyle = '#f97316';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(28, 648, 456, 98);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 32px Inter, sans-serif';
+            ctx.fillText('DEFESA CIVIL', 256, 692);
+            ctx.fillStyle = '#bae6fd';
+            ctx.font = '800 26px Inter, sans-serif';
+            ctx.fillText('MONITORAMENTO', 256, 728);
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.anisotropy = 4;
+            return tex;
+        }
+
+        // Creates the Side Panel Texture (Amazonian Indigenous Grafismo + NASA + Defesa Civil Badges)
+        function createSidePanelTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            // Warm Corten / Ochre Wood-Metal Background
+            const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+            grad.addColorStop(0, '#b45309');
+            grad.addColorStop(0.5, '#92400e');
+            grad.addColorStop(1, '#78350f');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 256, 1024);
+
+            // Draw Traditional Amazonian Geometric Patterns (Grafismo Indígena)
+            ctx.strokeStyle = '#291507';
+            ctx.lineWidth = 6;
+            for (let y = 40; y < 340; y += 60) {
+                ctx.beginPath();
+                for (let x = 16; x <= 240; x += 32) {
+                    ctx.lineTo(x, y + ((x / 32) % 2 === 0 ? 0 : 28));
+                }
+                ctx.stroke();
+            }
+
+            // NASA Meatball Style Badge
+            ctx.fillStyle = '#1d4ed8';
+            ctx.beginPath();
+            ctx.arc(128, 460, 58, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '900 34px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('NASA', 128, 472);
+
+            // Space Apps Text
+            ctx.fillStyle = '#fef3c7';
+            ctx.font = '800 22px Inter, sans-serif';
+            ctx.fillText('SPACE APPS', 128, 555);
+            ctx.font = '600 17px Inter, sans-serif';
+            ctx.fillText('CHALLENGE', 128, 578);
+
+            // Defesa Civil Triangle Logo
+            ctx.fillStyle = '#f97316';
+            ctx.fillRect(72, 620, 112, 112);
+            ctx.fillStyle = '#1e3a8a';
+            ctx.beginPath();
+            ctx.moveTo(128, 636);
+            ctx.lineTo(170, 714);
+            ctx.lineTo(86, 714);
+            ctx.closePath();
+            ctx.fill();
+
+            // Lower Grafismo Pattern
+            ctx.strokeStyle = '#291507';
+            ctx.lineWidth = 7;
+            for (let y = 780; y < 980; y += 55) {
+                ctx.beginPath();
+                for (let x = 16; x <= 240; x += 32) {
+                    ctx.lineTo(x, y + ((x / 32) % 2 === 0 ? 0 : 26));
+                }
+                ctx.stroke();
+            }
+
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // Creates Solar Panel Photovoltaic Grid Texture
+        function createSolarTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0f2942';
+            ctx.fillRect(0, 0, 512, 512);
+
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            const cols = 6, rows = 10;
+            for (let c = 0; c <= cols; c++) {
+                ctx.beginPath();
+                ctx.moveTo((c / cols) * 512, 0);
+                ctx.lineTo((c / cols) * 512, 512);
+                ctx.stroke();
+            }
+            for (let r = 0; r <= rows; r++) {
+                ctx.beginPath();
+                ctx.moveTo(0, (r / rows) * 512);
+                ctx.lineTo(512, (r / rows) * 512);
+                ctx.stroke();
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        /**************************************************************
+         * 3. BUILD 3D TOTEM MODEL WITH THREE.JS
+         **************************************************************/
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b0f17);
+            scene.fog = new THREE.FogExp2(0x0b0f17, 0.045);
+
+            camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
+
+            // Lighting Setup
+            const ambientLight = new THREE.AmbientLight(0xdbeafe, 0.65);
+            scene.add(ambientLight);
+
+            const mainDirLight = new THREE.DirectionalLight(0xfffbeb, 1.15);
+            mainDirLight.position.set(5, 9, 6);
+            mainDirLight.castShadow = true;
+            mainDirLight.shadow.mapSize.width = 2048;
+            mainDirLight.shadow.mapSize.height = 2048;
+            scene.add(mainDirLight);
+
+            const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+            rimLight.position.set(-6, 4, -5);
+            scene.add(rimLight);
+
+            // Ground Studio Grid + Slope Terrain Preview
+            const groundGeo = new THREE.CylinderGeometry(5.5, 5.8, 0.25, 48);
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x131c2e, roughness: 0.85, metalness: 0.1 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.position.y = -0.125;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            const gridHelper = new THREE.GridHelper(10, 20, 0x38bdf8, 0x1e293b);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+
+            initScreenCanvas();
+            buildTotemGeometry();
+
+            // Raycaster for direct 3D button clicking
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            setupInteractionEvents(renderer.domElement);
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        function registerExplodedPart(meshOrGroup, offsetVector, labelText) {
+            explodedParts.push({
+                object: meshOrGroup,
+                basePos: meshOrGroup.position.clone(),
+                offset: offsetVector,
+                label: labelText
+            });
+        }
+
+        function buildTotemGeometry() {
+            totemGroup = new THREE.Group();
+            scene.add(totemGroup);
+
+            // Materials
+            const concreteMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.9, metalness: 0.05 });
+            const darkSteelMat = new THREE.MeshStandardMaterial({ color: 0x27303f, roughness: 0.4, metalness: 0.75 });
+            const galvSteelMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.35, metalness: 0.8 });
+            const chromeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2, metalness: 0.9 });
+
+            // 1. Concrete Foundation Base (Sapata de Concreto) + Anchor Bolts
+            const baseGroup = new THREE.Group();
+            const concreteBlock = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.36, 1.05), concreteMat);
+            concreteBlock.position.y = 0.18;
+            concreteBlock.castShadow = true;
+            concreteBlock.receiveShadow = true;
+            baseGroup.add(concreteBlock);
+
+            // Two vertical galvanized support legs + anchor plates
+            [-0.36, 0.36].forEach(xPos => {
+                const plate = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.03, 0.34), galvSteelMat);
+                plate.position.set(xPos, 0.375, 0);
+                baseGroup.add(plate);
+
+                // 4 Anchor Bolts per plate
+                [[-0.09, -0.12], [0.09, -0.12], [-0.09, 0.12], [0.09, 0.12]].forEach(([bx, bz]) => {
+                    const bolt = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.06, 12), chromeMat);
+                    bolt.position.set(xPos + bx, 0.40, bz);
+                    baseGroup.add(bolt);
+                });
+
+                const leg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.65, 0.18), galvSteelMat);
+                leg.position.set(xPos, 0.68, 0);
+                leg.castShadow = true;
+                baseGroup.add(leg);
+            });
+            totemGroup.add(baseGroup);
+            registerExplodedPart(baseGroup, new THREE.Vector3(0, -0.5, 0), "1. Sapata de Concreto + Chumbadores");
+
+            // 2. Main Structural Cabinet Body
+            const bodyGroup = new THREE.Group();
+            const mainBox = new THREE.Mesh(new THREE.BoxGeometry(1.02, 2.75, 0.42), darkSteelMat);
+            mainBox.position.y = 2.32;
+            mainBox.castShadow = true;
+            mainBox.receiveShadow = true;
+            bodyGroup.add(mainBox);
+
+            // Protective Top Overhang Visor (Viseira de Proteção Solar/Chuva)
+            const visorTop = new THREE.Mesh(new THREE.BoxGeometry(1.06, 0.06, 0.56), darkSteelMat);
+            visorTop.position.set(0, 3.68, 0.06);
+            bodyGroup.add(visorTop);
+
+            // Side Panels with Indigenous Art + NASA / Defesa Civil Badges
+            const sideTex = createSidePanelTexture();
+            const sideMat = new THREE.MeshStandardMaterial({ map: sideTex, roughness: 0.5, metalness: 0.2 });
+            
+            const leftPanel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 2.62), sideMat);
+            leftPanel.rotation.y = -Math.PI / 2;
+            leftPanel.position.set(-0.512, 2.32, 0);
+            bodyGroup.add(leftPanel);
+
+            const rightPanel = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 2.62), sideMat);
+            rightPanel.rotation.y = Math.PI / 2;
+            rightPanel.position.set(0.512, 2.32, 0);
+            bodyGroup.add(rightPanel);
+
+            totemGroup.add(bodyGroup);
+            registerExplodedPart(bodyGroup, new THREE.Vector3(0, 0, -0.4), "2. Gabinete Blindado IP67 + Grafismo Amazônico");
+
+            // 3. Internal Hardware Core (Visible during Exploded View: LiFePO4 Battery + LoRa/SAR Edge Processor)
+            const internalGroup = new THREE.Group();
+            const batteryBox = new THREE.Mesh(
+                new THREE.BoxGeometry(0.68, 0.55, 0.24),
+                new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.3, metalness: 0.5 })
+            );
+            batteryBox.position.set(0, 1.55, 0);
+            internalGroup.add(batteryBox);
+
+            const edgeBoard = new THREE.Mesh(
+                new THREE.BoxGeometry(0.55, 0.42, 0.12),
+                new THREE.MeshStandardMaterial({ color: 0x15803d, roughness: 0.4, metalness: 0.6 })
+            );
+            edgeBoard.position.set(0, 2.25, 0);
+            internalGroup.add(edgeBoard);
+            totemGroup.add(internalGroup);
+            registerExplodedPart(internalGroup, new THREE.Vector3(-1.35, 0.1, 0), "3. Bateria Solar LiFePO4 + Receptor InSAR Offline");
+
+            // 4. High-Contrast Display Screen Module
+            const screenGroup = new THREE.Group();
+            const bezelFrame = new THREE.Mesh(new THREE.BoxGeometry(0.88, 1.26, 0.05), new THREE.MeshStandardMaterial({ color: 0x090d16, roughness: 0.2 }));
+            bezelFrame.position.set(0, 2.95, 0.21);
+            screenGroup.add(bezelFrame);
+
+            const screenMat = new THREE.MeshBasicMaterial({ map: screenTexture });
+            screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.78, 1.16), screenMat);
+            screenMesh.position.set(0, 2.95, 0.238);
+            screenGroup.add(screenMesh);
+
+            totemGroup.add(screenGroup);
+            registerExplodedPart(screenGroup, new THREE.Vector3(0, 0.25, 0.75), "4. Tela Alto Contraste (Dados SAR / InSAR)");
+
+            // 5. Accessible Front Panel & Big Red Button Module
+            const buttonModuleGroup = new THREE.Group();
+            const frontPlateMat = new THREE.MeshStandardMaterial({
+                map: createFrontPanelTexture(),
+                roughness: 0.35,
+                metalness: 0.6
+            });
+            const frontPlate = new THREE.Mesh(new THREE.BoxGeometry(0.90, 1.32, 0.04), frontPlateMat);
+            frontPlate.position.set(0, 1.62, 0.21);
+            buttonModuleGroup.add(frontPlate);
+
+            // Black Industrial Collar around the Red Button
+            const collar = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.19, 0.21, 0.07, 32),
+                new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.4, metalness: 0.5 })
+            );
+            collar.rotation.x = Math.PI / 2;
+            collar.position.set(0, 1.68, 0.245);
+            buttonModuleGroup.add(collar);
+
+            // Metallic Screws around Collar
+            for (let i = 0; i < 6; i++) {
+                const ang = (i / 6) * Math.PI * 2;
+                const screw = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.02, 10), chromeMat);
+                screw.rotation.x = Math.PI / 2;
+                screw.position.set(Math.cos(ang) * 0.195, 1.68 + Math.sin(ang) * 0.195, 0.24);
+                buttonModuleGroup.add(screw);
+            }
+
+            // THE GIANT RED TACTILE BUTTON (Interactive via Raycaster)
+            const redBtnMat = new THREE.MeshStandardMaterial({
+                color: 0xdc2626,
+                roughness: 0.25,
+                metalness: 0.15,
+                emissive: 0x7f1d1d,
+                emissiveIntensity: 0.25
+            });
+            redButtonMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.155, 0.165, 0.09, 36), redBtnMat);
+            redButtonMesh.rotation.x = Math.PI / 2;
+            redButtonMesh.position.set(0, 1.68, 0.285);
+            redButtonMesh.name = "RED_ACCESSIBLE_BUTTON";
+            buttonModuleGroup.add(redButtonMesh);
+
+            totemGroup.add(buttonModuleGroup);
+            registerExplodedPart(buttonModuleGroup, new THREE.Vector3(0, -0.15, 0.95), "5. Módulo Acessível (Botão Mecânico + Braille + Áudio)");
+
+            // 6. Top Solar Panel & LoRa/Satellite Telemetry Antenna
+            const solarGroup = new THREE.Group();
+
+            // Support Struts
+            const strutL = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45, 12), darkSteelMat);
+            strutL.position.set(-0.28, 3.90, 0);
+            solarGroup.add(strutL);
+
+            const strutR = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.32, 12), darkSteelMat);
+            strutR.position.set(0.28, 3.84, 0.15);
+            solarGroup.add(strutR);
+
+            // Angled Solar Panel Frame
+            const solarPanelFrame = new THREE.Group();
+            solarPanelFrame.position.set(0, 4.08, 0.04);
+            solarPanelFrame.rotation.x = 0.38; // Tilted toward equatorial sun
+
+            const frameMesh = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.04, 0.86), chromeMat);
+            frameMesh.castShadow = true;
+            solarPanelFrame.add(frameMesh);
+
+            const cellsMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(1.08, 0.78),
+                new THREE.MeshStandardMaterial({ map: createSolarTexture(), roughness: 0.15, metalness: 0.6 })
+            );
+            cellsMesh.rotation.x = -Math.PI / 2;
+            cellsMesh.position.y = 0.022;
+            solarPanelFrame.add(cellsMesh);
+            solarGroup.add(solarPanelFrame);
+
+            // Twin Antennas (LoRa / Satellite Link)
+            const antLeft = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.022, 0.75, 12), darkSteelMat);
+            antLeft.position.set(-0.44, 4.05, -0.12);
+            solarGroup.add(antLeft);
+
+            const antRight = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.018, 0.65, 12), darkSteelMat);
+            antRight.position.set(0.44, 4.00, -0.12);
+            solarGroup.add(antRight);
+
+            // Blinking Telemetry Status LED on Main Antenna
+            ledTipMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.032, 16, 16),
+                new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+            );
+            ledTipMesh.position.set(-0.44, 4.44, -0.12);
+            solarGroup.add(ledTipMesh);
+
+            totemGroup.add(solarGroup);
+            registerExplodedPart(solarGroup, new THREE.Vector3(0, 0.75, 0), "6. Painel Solar Autônomo + Antenas LoRa/Satélite");
+
+            createFloatingDOMLabels();
+        }
+
+        /**************************************************************
+         * 4. FLOATING 3D LABELS FOR EXPLODED VIEW
+         **************************************************************/
+        function createFloatingDOMLabels() {
+            const container = document.getElementById('labels-container');
+            container.innerHTML = '';
+            explodedParts.forEach((part, idx) => {
+                const div = document.createElement('div');
+                div.className = 'label-3d';
+                div.id = `part-label-${idx}`;
+                div.textContent = part.label;
+                container.appendChild(div);
+                part.domElement = div;
+            });
+        }
+
+        function updateFloatingLabels() {
+            const container = document.getElementById('labels-container');
+            if (!isExploded && explodeFactor < 0.05) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+
+            explodedParts.forEach(part => {
+                const worldPos = new THREE.Vector3();
+                part.object.getWorldPosition(worldPos);
+                // Offset slightly for clarity
+                worldPos.y += 0.25;
+                worldPos.project(camera);
+
+                const x = (worldPos.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (-(worldPos.y * 0.5) + 0.5) * window.innerHeight;
+
+                part.domElement.style.left = `${x}px`;
+                part.domElement.style.top = `${y}px`;
+                part.domElement.style.opacity = explodeFactor.toFixed(2);
+            });
+        }
+
+        /**************************************************************
+         * 5. WEB AUDIO SAR SONIFICATION + WEB SPEECH VOICE ALERT
+         **************************************************************/
+        function playSarSonificationAndVoice() {
+            const cfg = RISK_CONFIG[currentRisk];
+            const badge = document.getElementById('audio-status-badge');
+            const transcript = document.getElementById('voice-transcript');
+
+            badge.textContent = "🔊 SONIFICANDO RADAR SAR...";
+            badge.className = "text-[10px] mono text-amber-400 font-bold animate-pulse";
+            transcript.textContent = `"${cfg.speech}"`;
+
+            // 1. Web Audio API: Synthesize SAR Phase Shift Frequency Sweep ("Dancing with SARs")
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioCtx();
+
+                // Radar Pulse Carrier
+                const osc = audioCtx.createOscillator();
+                const mod = audioCtx.createOscillator();
+                const modGain = audioCtx.createGain();
+                const mainGain = audioCtx.createGain();
+
+                osc.type = currentRisk === 'red' ? 'sawtooth' : 'sine';
+                osc.frequency.setValueAtTime(cfg.freqStart, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(cfg.freqEnd, audioCtx.currentTime + 1.1);
+
+                // Vibrato representing radar phase fringes
+                mod.frequency.value = currentRisk === 'red' ? 14 : 7;
+                modGain.gain.value = 35;
+                mod.connect(modGain);
+                modGain.connect(osc.frequency);
+
+                mainGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                mainGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.25);
+
+                osc.connect(mainGain);
+                mainGain.connect(audioCtx.destination);
+
+                osc.start();
+                mod.start();
+                osc.stop(audioCtx.currentTime + 1.25);
+                mod.stop(audioCtx.currentTime + 1.25);
+            } catch (e) {
+                console.warn("Web Audio API ignorado:", e);
+            }
+
+            // 2. Speak the Accessible Bulletin in Portuguese after the 1.2s SAR tone
+            setTimeout(() => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(cfg.speech);
+                    utterance.lang = 'pt-BR';
+                    utterance.rate = 1.02;
+                    utterance.pitch = 0.98;
+
+                    utterance.onstart = () => {
+                        badge.textContent = "🗣️ FALANDO ALERTA...";
+                        badge.className = "text-[10px] mono text-emerald-400 font-bold";
+                    };
+                    utterance.onend = () => {
+                        badge.textContent = "Concluído";
+                        badge.className = "text-[10px] mono text-slate-400";
+                    };
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    badge.textContent = "Áudio Simulado Ativo";
+                }
+            }, 1150);
+        }
+
+        function triggerTotemButton() {
+            // Animate physical button inward
+            isButtonPressed = true;
+            setTimeout(() => { isButtonPressed = false; }, 450);
+
+            // Temporarily highlight high contrast if desired or update screen
+            updateScreenCanvas();
+            playSarSonificationAndVoice();
+            showToast("Botão Físico Acionado: Sonificação SAR + Voz da Defesa Civil!");
+        }
+
+        /**************************************************************
+         * 6. UI ACTIONS & STATE CONTROLLERS
+         **************************************************************/
+        function setRiskLevel(level) {
+            currentRisk = level;
+            const cfg = RISK_CONFIG[level];
+
+            // Update telemetry labels
+            document.getElementById('telemetry-deform').textContent = cfg.deform;
+            document.getElementById('telemetry-deform').style.color = cfg.color;
+            document.getElementById('telemetry-moisture').textContent = cfg.moisture;
+
+            // Update LED Tip color
+            if (ledTipMesh) {
+                ledTipMesh.material.color.set(cfg.color);
+            }
+
+            // Highlight active button
+            ['green', 'yellow', 'red'].forEach(k => {
+                const btn = document.getElementById(`risk-${k}`);
+                if (k === level) {
+                    btn.classList.add('ring-2', 'ring-white');
+                } else {
+                    btn.classList.remove('ring-2', 'ring-white');
+                }
+            });
+
+            updateScreenCanvas();
+            showToast(`Cenário InSAR alterado: ${cfg.title}`);
+        }
+
+        function toggleHighContrast() {
+            highContrastMode = !highContrastMode;
+            const btn = document.getElementById('btn-contrast');
+            btn.textContent = highContrastMode ? "Ativado (Amarelo/Preto)" : "Desativado";
+            btn.className = highContrastMode
+                ? "px-2.5 py-1 rounded bg-amber-400 text-black font-bold text-[11px]"
+                : "px-2.5 py-1 rounded bg-slate-800 border border-slate-600 text-amber-300 font-semibold text-[11px]";
+            updateScreenCanvas();
+        }
+
+        function setCameraMode(mode) {
+            if (mode === 'default') {
+                targetSpherical = { radius: 6.2, theta: 0.45, phi: 1.38, targetY: 2.1 };
+            } else if (mode === 'button') {
+                targetSpherical = { radius: 2.35, theta: 0.18, phi: 1.52, targetY: 1.68 };
+            } else if (mode === 'screen') {
+                targetSpherical = { radius: 2.45, theta: -0.12, phi: 1.48, targetY: 2.95 };
+            }
+        }
+
+        function toggleExplodedView() {
+            isExploded = !isExploded;
+            targetExplodeFactor = isExploded ? 1 : 0;
+            const btn = document.getElementById('btn-explode');
+            if (isExploded) {
+                btn.classList.add('bg-amber-500', 'text-slate-950', 'font-bold');
+                targetSpherical = { radius: 7.4, theta: 0.62, phi: 1.35, targetY: 2.2 };
+                showToast("Vista Explodida Ativada: Mostrando componentes internos!");
+            } else {
+                btn.classList.remove('bg-amber-500', 'text-slate-950', 'font-bold');
+                setCameraMode('default');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.opacity = '1';
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+            }, 2600);
+        }
+
+        /**************************************************************
+         * 7. SCREENSHOT (PNG) & 3D MODEL (.OBJ) EXPORT
+         **************************************************************/
+        document.getElementById('btn-screenshot').addEventListener('click', () => {
+            renderer.render(scene, camera);
+            const dataURL = renderer.domElement.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.download = `Totem_SAR_DefesaCivil_${currentRisk}.png`;
+            link.href = dataURL;
+            link.click();
+            showToast("Imagem PNG de alta resolução salva para seu slide!");
+        });
+
+        document.getElementById('btn-export-obj').addEventListener('click', () => {
+            let objContent = "# Totem Monitoramento SAR - NASA Space Apps Challenge\n";
+            objContent += "# Modelo 3D Gerado para Blender / Impressao 3D / CAD\n\n";
+            let vertexOffset = 1;
+
+            totemGroup.updateMatrixWorld(true);
+            totemGroup.traverse(child => {
+                if (child.isMesh && child.geometry) {
+                    const geom = child.geometry.clone();
+                    geom.applyMatrix4(child.matrixWorld);
+                    const pos = geom.attributes.position;
+                    if (!pos) return;
+
+                    objContent += `o ${child.name || 'Componente_Totem'}\n`;
+                    for (let i = 0; i < pos.count; i++) {
+                        objContent += `v ${pos.getX(i).toFixed(4)} ${pos.getY(i).toFixed(4)} ${pos.getZ(i).toFixed(4)}\n`;
+                    }
+
+                    const index = geom.index;
+                    if (index) {
+                        for (let i = 0; i < index.count; i += 3) {
+                            const a = index.getX(i) + vertexOffset;
+                            const b = index.getX(i + 1) + vertexOffset;
+                            const c = index.getX(i + 2) + vertexOffset;
+                            objContent += `f ${a} ${b} ${c}\n`;
+                        }
+                    } else {
+                        for (let i = 0; i < pos.count; i += 3) {
+                            objContent += `f ${vertexOffset + i} ${vertexOffset + i + 1} ${vertexOffset + i + 2}\n`;
+                        }
+                    }
+                    vertexOffset += pos.count;
+                }
+            });
+
+            const blob = new Blob([objContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Totem_SAR_DefesaCivil_3D.obj';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Arquivo 3D (.OBJ) baixado! Você pode abrir no Blender ou Spline.");
+        });
+
+        document.getElementById('toggle-autorotate').addEventListener('change', (e) => {
+            isAutoRotating = e.target.checked;
+        });
+
+        /**************************************************************
+         * 8. MOUSE / TOUCH ORBIT & RAYCASTER INTERACTION
+         **************************************************************/
+        function setupInteractionEvents(domElement) {
+            let pointerDownPos = { x: 0, y: 0 };
+
+            domElement.addEventListener('pointerdown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+                pointerDownPos = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('pointermove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                targetSpherical.theta -= deltaX * 0.007;
+                targetSpherical.phi = Math.max(0.35, Math.min(Math.PI / 2 - 0.02, targetSpherical.phi - deltaY * 0.006));
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('pointerup', (e) => {
+                isDragging = false;
+                const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+                // If it was a clean click/tap, check if user clicked the 3D Red Button
+                if (moveDist < 6) {
+                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(redButtonMesh);
+                    if (intersects.length > 0) {
+                        triggerTotemButton();
+                    }
+                }
+            });
+
+            domElement.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                targetSpherical.radius = Math.max(1.8, Math.min(11.0, targetSpherical.radius + e.deltaY * 0.004));
+            }, { passive: false });
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        /**************************************************************
+         * 9. MAIN ANIMATION LOOP
+         **************************************************************/
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsed = clock.getElapsedTime();
+
+            // Auto-rotate if enabled
+            if (isAutoRotating && !isDragging) {
+                targetSpherical.theta += 0.0045;
+            }
+
+            // Smoothly interpolate camera spherical coordinates
+            spherical.radius += (targetSpherical.radius - spherical.radius) * 0.08;
+            spherical.theta += (targetSpherical.theta - spherical.theta) * 0.08;
+            spherical.phi += (targetSpherical.phi - spherical.phi) * 0.08;
+            spherical.targetY += (targetSpherical.targetY - spherical.targetY) * 0.08;
+
+            camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+            camera.position.y = spherical.targetY + spherical.radius * Math.cos(spherical.phi);
+            camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+            camera.lookAt(0, spherical.targetY, 0);
+
+            // Smoothly animate Exploded View parts
+            explodeFactor += (targetExplodeFactor - explodeFactor) * 0.08;
+            explodedParts.forEach(part => {
+                part.object.position.lerpVectors(
+                    part.basePos,
+                    part.basePos.clone().add(part.offset),
+                    explodeFactor
+                );
+            });
+
+            // Animate 3D Red Button press depth
+            const targetPress = isButtonPressed ? -0.038 : 0;
+            buttonPressOffset += (targetPress - buttonPressOffset) * 0.25;
+            if (redButtonMesh) {
+                redButtonMesh.position.z = 0.285 + buttonPressOffset;
+            }
+
+            // Pulse Antenna LED
+            if (ledTipMesh) {
+                const blink = (Math.sin(elapsed * (currentRisk === 'red' ? 10 : 4)) + 1) * 0.5;
+                ledTipMesh.scale.setScalar(0.85 + blink * 0.45);
+            }
+
+            updateFloatingLabels();
+            renderer.render(scene, camera);
+        }
+
+        window.onload = initThreeJS;
+    </script>
+</body>
+</html>
