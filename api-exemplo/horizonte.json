@@ -1,0 +1,7 @@
+[
+  { "rotulo": "Agora", "horas": 0, "chuva": 18, "deslizamento": { "nivel": 3, "prob": 100 }, "alagamento": { "nivel": 2, "prob": 100 } },
+  { "rotulo": "1 h", "horas": 1, "chuva": 24, "deslizamento": { "nivel": 3, "prob": 95 }, "alagamento": { "nivel": 2, "prob": 90 } },
+  { "rotulo": "3 h", "horas": 3, "chuva": 31, "deslizamento": { "nivel": 4, "prob": 80 }, "alagamento": { "nivel": 3, "prob": 75 } },
+  { "rotulo": "5 h", "horas": 5, "chuva": 36, "deslizamento": { "nivel": 4, "prob": 70 }, "alagamento": { "nivel": 3, "prob": 65 } },
+  { "rotulo": "Amanhã", "horas": 24, "chuva": 72, "deslizamento": { "nivel": 4, "prob": 55 }, "alagamento": { "nivel": 3, "prob": 50 } }
+]

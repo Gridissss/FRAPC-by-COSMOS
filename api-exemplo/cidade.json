@@ -1,0 +1,10 @@
+{
+  "cidade": "Manaus",
+  "atualizadoEm": "14/11/2026 · 08:00",
+  "voce": { "nome": "Praça do Santo Antônio", "lat": -3.1085, "lng": -60.0455 },
+  "telefones": [
+    { "nome": "Defesa Civil", "numero": "199", "icone": "sirene", "usos": ["morro", "casa"] },
+    { "nome": "Bombeiros", "numero": "193", "icone": "fogo", "usos": ["fogo", "correr"] },
+    { "nome": "SAMU", "numero": "192", "icone": "cruz", "usos": ["cruz", "coracao"] }
+  ]
+}

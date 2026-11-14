@@ -1,0 +1,10 @@
+[
+  { "id": "compensa", "nome": "Compensa", "lat": -3.1055, "lng": -60.0585, "deslizamento": 3, "alagamento": 2 },
+  { "id": "santoantonio", "nome": "Santo Antônio", "lat": -3.1125, "lng": -60.0505, "deslizamento": 2, "alagamento": 2 },
+  { "id": "saojorge", "nome": "São Jorge", "lat": -3.0960, "lng": -60.0525, "deslizamento": 3, "alagamento": 1 },
+  { "id": "gloria", "nome": "Glória", "lat": -3.1100, "lng": -60.0640, "deslizamento": 2, "alagamento": 1 },
+  { "id": "saoraimundo", "nome": "São Raimundo", "lat": -3.1180, "lng": -60.0465, "deslizamento": 1, "alagamento": 2 },
+  { "id": "liriodovale", "nome": "Lírio do Vale", "lat": -3.0890, "lng": -60.0625, "deslizamento": 1, "alagamento": 1 },
+  { "id": "vilaprata", "nome": "Vila da Prata", "lat": -3.1230, "lng": -60.0580, "deslizamento": 1, "alagamento": 2 },
+  { "id": "santoagostinho", "nome": "Santo Agostinho", "lat": -3.1000, "lng": -60.0640, "deslizamento": 2, "alagamento": 1 }
+]
