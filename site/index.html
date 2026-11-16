@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Projeto Cosmos · O totem que avisa antes do barranco cair</title>
-  <meta name="description" content="Totens de rua em Manaus que juntam radar de satélite, chuva em tempo real e um modelo treinado com ocorrências da Defesa Civil para avisar quando ficar, se preparar ou sair — e para onde ir.">
+  <title data-i18n="meta.titulo">Project Cosmos · The street kiosk that warns before the hillside gives way</title>
+  <meta name="description" data-i18n-attr="content:meta.desc" content="Street kiosks in Manaus that combine satellite radar, live rainfall and a model trained on Civil Defense records to tell people when to stay, get ready or leave — and where to go.">
   <meta name="theme-color" content="#0b1322">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,24 +14,28 @@
   <script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
-  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <a class="pular" href="#conteudo" data-i18n="pular">Skip to content</a>
   <div class="progresso-leitura" aria-hidden="true"><span id="progresso-leitura"></span></div>
 
   <header class="nav" id="nav">
-    <a class="nav-logo" href="#topo" aria-label="Projeto Cosmos — início">
+    <a class="nav-logo" href="#topo" data-i18n-attr="aria-label:nav.logo" aria-label="Project Cosmos — home">
       <img src="assets/logo.svg" alt="FRAPC by Cosmos" width="250" height="120">
     </a>
-    <nav aria-label="Seções">
+    <nav data-i18n-attr="aria-label:nav.secoes" aria-label="Sections">
       <ul class="nav-links">
-        <li><a href="#como-funciona">Como funciona</a></li>
-        <li><a href="#problema">Por que Manaus</a></li>
-        <li><a href="#video">Vídeo</a></li>
-        <li><a href="#niveis">Níveis</a></li>
-        <li><a href="#tecnologia">Tecnologia</a></li>
-        <li><button type="button" class="nav-docs" data-abrir-docs>Documentos</button></li>
+        <li><a href="#como-funciona" data-i18n="nav.como">How it works</a></li>
+        <li><a href="#problema" data-i18n="nav.problema">Why Manaus</a></li>
+        <li><a href="#video" data-i18n="nav.video">Video</a></li>
+        <li><a href="#niveis" data-i18n="nav.niveis">Levels</a></li>
+        <li><a href="#tecnologia" data-i18n="nav.tec">Technology</a></li>
+        <li><button type="button" class="nav-docs" data-abrir-docs data-i18n="nav.docs">Documents</button></li>
       </ul>
     </nav>
-    <a class="botao botao-pequeno" href="#como-funciona">Ver o totem</a>
+    <div class="lingua" role="group" aria-label="Language · Idioma" data-ativa="en">
+      <button type="button" data-lingua="en" lang="en" aria-pressed="true" title="English">EN</button>
+      <button type="button" data-lingua="pt" lang="pt-BR" aria-pressed="false" title="Português do Brasil">PT-BR</button>
+    </div>
+    <a class="botao botao-pequeno" href="#como-funciona" data-i18n="nav.totem">See the kiosk</a>
   </header>
 
   <main id="conteudo">
@@ -42,90 +46,91 @@
 
       <div class="palco-texto">
         <section class="hero" aria-labelledby="titulo-hero" data-tela="resumo">
-          <p class="sobretitulo"><span class="ponto-vivo" aria-hidden="true"></span>NASA Space Apps · Manaus 2026 · 3°06′S 60°01′O</p>
+          <p class="sobretitulo"><span class="ponto-vivo" aria-hidden="true"></span><span data-i18n="hero.sobre">NASA Space Apps · Manaus 2026 · 3°06′S 60°01′W</span></p>
           <h1 class="titulo-hero" id="titulo-hero">
-            <span class="linha"><span>O barranco</span></span>
-            <span class="linha"><span>não avisa.</span></span>
-            <span class="linha"><span><em>O totem avisa.</em></span></span>
+            <span class="linha"><span data-i18n="hero.l1">The slope</span></span>
+            <span class="linha"><span data-i18n="hero.l2">won't warn.</span></span>
+            <span class="linha"><span data-i18n="hero.l3"><em>The kiosk will.</em></span></span>
           </h1>
-          <p class="hero-lead">
-            Totens nas praças e paradas de ônibus de Manaus que cruzam radar de satélite, a chuva de agora e
-            um modelo treinado com ocorrências da Defesa Civil. A resposta vem em linguagem de rua:
-            <strong>fique em casa, fique pronto ou saia</strong> — e para onde ir.
+          <p class="hero-lead" data-i18n="hero.lead">
+            Kiosks in the squares and bus stops of Manaus that cross satellite radar, the rain falling right now and
+            a model trained on Civil Defense incident records. The answer comes in plain street language:
+            <strong>stay home, get ready or get out</strong> — and where to go.
           </p>
           <div class="hero-acoes">
-            <a class="botao" href="#passo-1">Ver como funciona</a>
-            <a class="botao botao-fantasma" href="#video"><span class="icone-play" aria-hidden="true"></span>Assistir · 30 s</a>
+            <a class="botao" href="#passo-1" data-i18n="hero.ver">See how it works</a>
+            <a class="botao botao-fantasma" href="#video" data-i18n="hero.assistir"><span class="icone-play" aria-hidden="true"></span>Watch · 30 s</a>
           </div>
           <dl class="numeros">
-            <div><dt><span class="conta" data-alvo="75">0</span> mil</dt><dd>pessoas vivem em encostas de alto risco em Manaus (Censo)</dd></div>
-            <div><dt><span class="conta" data-alvo="4582">0</span></dt><dd>quadras de 500 m monitoradas uma a uma</dd></div>
-            <div><dt><span class="conta" data-alvo="15">0</span> s</dt><dd>entre uma atualização e outra no modo tempo real</dd></div>
+            <div><dt><span class="conta" data-alvo="75">0</span><span data-i18n="num.mil">k</span></dt><dd data-i18n="num.d1">people live on high-risk slopes in Manaus (Census)</dd></div>
+            <div><dt><span class="conta" data-alvo="4582">0</span></dt><dd data-i18n="num.d2">500 m grid cells, each one watched on its own</dd></div>
+            <div><dt><span class="conta" data-alvo="15">0</span> s</dt><dd data-i18n="num.d3">between updates in real-time mode</dd></div>
           </dl>
         </section>
 
         <section class="passos" id="como-funciona" aria-labelledby="titulo-como">
           <header class="cabeca-secao">
-            <p class="rotulo">01 — Como funciona</p>
-            <h2 id="titulo-como">Do satélite até a calçada, <em>em quatro passos</em>.</h2>
-            <p class="dica-rolagem">Role a página: o totem ao lado acompanha cada passo.</p>
+            <p class="rotulo" data-i18n="como.rotulo">01 — How it works</p>
+            <h2 id="titulo-como" data-i18n="como.titulo">From satellite to sidewalk, <em>in four steps</em>.</h2>
+            <p class="dica-rolagem" data-i18n="como.dica">Keep scrolling: the kiosk on the side follows every step.</p>
           </header>
 
           <article class="passo" id="passo-1" data-tela="mapa" data-id="deslizamento">
             <span class="passo-num">01</span>
-            <h3>Um radar que enxerga através da chuva</h3>
-            <p>Debaixo das nuvens da Amazônia, satélites de imagem comum ficam cegos. O radar de abertura sintética (SAR)
-              não: ele mede a umidade e o movimento do solo mesmo durante a tempestade. Hoje usamos o Sentinel-1; o projeto
-              foi desenhado para a banda L do NISAR, da NASA, que percebe deslocamentos milimétricos em encostas.</p>
-            <ul class="fatos"><li>Relevo e declividade</li><li>Cota dos baixios</li><li>Grade de 500 × 500 m</li></ul>
+            <h3 data-i18n="p1.titulo">A radar that sees through the rain</h3>
+            <p data-i18n="p1.texto">Under Amazon clouds, ordinary imaging satellites go blind. Synthetic aperture radar (SAR) doesn't: it reads
+              soil moisture and ground movement even in the middle of a storm. Today we use Sentinel-1; the project was
+              designed for NASA's L-band NISAR, which picks up millimetre-scale shifts on slopes.</p>
+            <ul class="fatos"><li data-i18n="p1.f1">Terrain and slope</li><li data-i18n="p1.f2">Lowland elevation</li><li data-i18n="p1.f3">500 × 500 m grid</li></ul>
           </article>
 
           <article class="passo" id="passo-2" data-tela="proximas">
             <span class="passo-num">02</span>
-            <h3>A chuva de agora — e a das próximas horas</h3>
-            <p>A cada minuto o sistema busca a chuva medida e prevista para o ponto exato do totem (Meteomatics, com
-              Open-Meteo de reserva) e soma o que caiu em 1, 6, 24 e 72 horas. Solo encharcado há três dias desliza com
-              muito menos chuva do que solo seco.</p>
-            <ul class="fatos"><li>Acumulado 1 h → 72 h</li><li>Previsão para 5 dias</li><li>Cache para não cair</li></ul>
+            <h3 data-i18n="p2.titulo">The rain right now — and over the next hours</h3>
+            <p data-i18n="p2.texto">Every minute the system fetches measured and forecast rainfall for the kiosk's exact spot (Meteomatics, with
+              Open-Meteo as backup) and adds up what fell over 1, 6, 24 and 72 hours. Ground that has been soaked for three
+              days slides with far less rain than dry ground.</p>
+            <ul class="fatos"><li data-i18n="p2.f1">1 h → 72 h totals</li><li data-i18n="p2.f2">5-day forecast</li><li data-i18n="p2.f3">Cached, so it never goes dark</li></ul>
           </article>
 
           <article class="passo" id="passo-3" data-tela="risco" data-id="deslizamento">
             <span class="passo-num">03</span>
-            <h3>Um modelo treinado com o que já aconteceu</h3>
-            <p>Um LightGBM aprendeu com o histórico de ocorrências da Defesa Civil quais combinações de chuva, relevo e radar
-              terminaram em alagamento ou deslizamento. A probabilidade de cada quadra vira um dos quatro níveis — e o nível
-              do bairro só sobe quando o risco cobre uma parte real dele.</p>
-            <ul class="fatos"><li>Tranquilo · Atenção · Perigo · Extremo</li><li>Limiar calibrado por F1</li></ul>
+            <h3 data-i18n="p3.titulo">A model trained on what already happened</h3>
+            <p data-i18n="p3.texto">A LightGBM model learned from Civil Defense incident history which mixes of rain, terrain and radar ended
+              in floods or landslides. Each cell's probability becomes one of four levels — and a neighbourhood's level only
+              goes up when the risk covers a real part of it.</p>
+            <ul class="fatos"><li data-i18n="p3.f1">Calm · Watch · Danger · Extreme</li><li data-i18n="p3.f2">Threshold tuned on F1</li></ul>
           </article>
 
           <article class="passo" id="passo-4" data-tela="mapa" data-id="alagamento">
             <span class="passo-num">04</span>
-            <h3>Uma resposta que qualquer pessoa entende</h3>
-            <p>O totem mostra o seu bairro e os vizinhos num mapa de satélite e, quando é preciso sair, traça a rota a pé
-              até o hospital, quartel de bombeiros ou área segura mais próxima — sempre num bairro que está tranquilo.
-              Se o seu bairro está alagando, ele não manda você para o hospital do mesmo bairro.</p>
-            <ul class="fatos"><li>Sem toque: zoom automático</li><li>Voz só em alerta</li><li>199 · 193 · 192</li></ul>
+            <h3 data-i18n="p4.titulo">An answer anyone can understand</h3>
+            <p data-i18n="p4.texto">The kiosk shows your neighbourhood and the ones around it on a satellite map and, when it's time to leave,
+              draws the walking route to the nearest hospital, fire station or safe area — always in a neighbourhood that
+              is calm. If yours is flooding, it won't send you to the hospital down the same street.</p>
+            <ul class="fatos"><li data-i18n="p4.f1">No touch: automatic zoom</li><li data-i18n="p4.f2">Voice only during alerts</li><li>199 · 193 · 192</li></ul>
           </article>
         </section>
       </div>
 
-      <aside class="palco-totem" aria-label="Demonstração do totem funcionando">
+      <aside class="palco-totem" data-i18n-attr="aria-label:totem.aside" aria-label="Live demo of the kiosk">
         <div class="totem-fixo">
+          <p class="totem-nota" data-i18n="totem.nota">Kiosk screen in Brazilian Portuguese, as on the street</p>
           <div class="totem-inclina">
             <div class="totem-aparelho">
               <span class="totem-camera" aria-hidden="true"></span>
-              <iframe id="totem-demo" src="../index.html?vitrine" title="Totem Alerta Manaus funcionando (demonstração)" loading="eager"></iframe>
+              <iframe id="totem-demo" src="../index.html?vitrine" data-i18n-attr="title:totem.iframe" title="Alerta Manaus kiosk running (demo)" loading="eager"></iframe>
               <span class="totem-brilho" aria-hidden="true"></span>
             </div>
             <div class="totem-pe" aria-hidden="true"></div>
           </div>
-          <p class="totem-legenda"><span class="ponto-vivo" aria-hidden="true"></span><span id="totem-tela">Hoje na cidade</span></p>
-          <div class="simulador" role="group" aria-label="Simular nível de risco no totem">
-            <span class="simulador-rotulo">Simule a chuva</span>
-            <button type="button" data-nivel="1" class="n1">Tranquilo</button>
-            <button type="button" data-nivel="2" class="n2">Atenção</button>
-            <button type="button" data-nivel="3" class="n3" aria-pressed="true">Perigo</button>
-            <button type="button" data-nivel="4" class="n4">Extremo</button>
+          <p class="totem-legenda"><span class="ponto-vivo" aria-hidden="true"></span><span id="totem-tela">Today in the city</span></p>
+          <div class="simulador" role="group" data-i18n-attr="aria-label:sim.grupo" aria-label="Simulate a risk level on the kiosk">
+            <span class="simulador-rotulo" data-i18n="sim.rotulo">Simulate the rain</span>
+            <button type="button" data-nivel="1" class="n1" data-i18n="nivel.1">Calm</button>
+            <button type="button" data-nivel="2" class="n2" data-i18n="nivel.2">Watch</button>
+            <button type="button" data-nivel="3" class="n3" aria-pressed="true" data-i18n="nivel.3">Danger</button>
+            <button type="button" data-nivel="4" class="n4" data-i18n="nivel.4">Extreme</button>
           </div>
         </div>
       </aside>
@@ -142,25 +147,26 @@
 
     <section class="problema" id="problema" aria-labelledby="titulo-problema">
       <header class="cabeca-secao">
-        <p class="rotulo">02 — Por que Manaus</p>
-        <h2 id="titulo-problema">De janeiro a maio, o inverno amazônico <em>não pede licença</em>.</h2>
+        <p class="rotulo" data-i18n="prob.rotulo">02 — Why Manaus</p>
+        <h2 id="titulo-problema" data-i18n="prob.titulo">From January to May, the Amazon rainy season <em>doesn't ask permission</em>.</h2>
       </header>
       <div class="problema-grade">
         <figure class="foto foto-grande" data-revela>
-          <img src="assets/nuvens-manaus.jpg" alt="Ilustração gerada por inteligência artificial de casas em encosta sob nuvens carregadas" loading="lazy" width="1600" height="680">
-          <span class="selo-ia">Imagem gerada por IA</span>
-          <figcaption>Ilustração gerada por IA de uma encosta em bairro periférico, antes da pancada da tarde.</figcaption>
+          <img src="assets/nuvens-manaus.jpg" data-i18n-attr="alt:prob.foto-alt" alt="AI-generated illustration of hillside houses under heavy rain clouds" loading="lazy" width="1600" height="680">
+          <span class="selo-ia" data-i18n="prob.selo">AI-generated image</span>
+          <figcaption data-i18n="prob.legenda">AI-generated illustration of a hillside in an outlying neighbourhood, just before the afternoon downpour.</figcaption>
         </figure>
         <div class="problema-texto" data-revela>
-          <p class="numero-gigante"><span class="conta" data-alvo="75">0</span><small>mil</small></p>
-          <p>pessoas vivem em encostas classificadas como de alto risco na cidade, segundo o Censo. Os igarapés do Mindu,
-            Educandos e São Raimundo enchem em minutos; o solo da Formação Alter do Chão, encharcado, cede sem barulho.</p>
-          <p class="destaque">O aviso precisa estar onde as pessoas estão — na parada de ônibus, na praça, na porta da escola.
-            Não num aplicativo que ninguém abriu.</p>
+          <p class="numero-gigante"><span class="conta" data-alvo="75">0</span><small data-i18n="num.mil-curto">k</small></p>
+          <p data-i18n="prob.texto">people live on slopes classified as high risk in the city, according to the Census. The Mindu, Educandos
+            and São Raimundo streams fill up in minutes; soaked through, the soil of the Alter do Chão Formation gives way
+            without a sound.</p>
+          <p class="destaque" data-i18n="prob.destaque">The warning has to be where people are — at the bus stop, in the square, at the school gate.
+            Not in an app nobody opened.</p>
         </div>
         <figure class="foto foto-pequena" data-revela>
-          <img src="assets/satelite.jpg" alt="Satélite de radar em órbita sobre a Terra à noite" loading="lazy" width="1600" height="700">
-          <figcaption>O radar SAR mede o solo através das nuvens, de dia ou de noite.</figcaption>
+          <img src="assets/satelite.jpg" data-i18n-attr="alt:prob.sat-alt" alt="Radar satellite orbiting above Earth at night" loading="lazy" width="1600" height="700">
+          <figcaption data-i18n="prob.sat-legenda">SAR radar reads the ground through the clouds, day or night.</figcaption>
         </figure>
       </div>
     </section>
@@ -168,134 +174,134 @@
     <section class="video" id="video" aria-labelledby="titulo-video">
       <canvas class="malha" data-malha="escura" aria-hidden="true"></canvas>
       <header class="cabeca-secao clara">
-        <p class="rotulo">03 — O projeto em 30 segundos</p>
-        <h2 id="titulo-video">Um botão, dados da NASA <em>e menos gente pega de surpresa</em>.</h2>
+        <p class="rotulo" data-i18n="video.rotulo">03 — The project in 30 seconds</p>
+        <h2 id="titulo-video" data-i18n="video.titulo">One button, NASA data <em>and fewer people caught off guard</em>.</h2>
       </header>
       <div class="video-moldura" id="video-moldura" data-youtube="61hn_QcZrLA">
         <video id="video-cosmos" poster="assets/poster.jpg" preload="none" playsinline>
           <source src="assets/video-cosmos.webm" type="video/webm">
           <source src="assets/video-cosmos.mp4" type="video/mp4">
         </video>
-        <button type="button" class="video-play" id="video-play" data-cursor="Assistir" aria-label="Assistir ao vídeo do Projeto Cosmos">
+        <button type="button" class="video-play" id="video-play" data-cursor="Watch" aria-label="Watch the Project Cosmos video" data-i18n-attr="data-cursor:video.cursor;aria-label:video.aria">
           <span class="video-play-disco"><span class="icone-play" aria-hidden="true"></span></span>
-          <span class="video-play-texto">Assistir · 0:30</span>
+          <span class="video-play-texto" data-i18n="video.play">Watch · 0:30</span>
         </button>
       </div>
-      <p class="video-link"><a href="https://www.youtube.com/watch?v=61hn_QcZrLA" target="_blank" rel="noopener">Abrir no YouTube ↗</a></p>
+      <p class="video-link"><a href="https://www.youtube.com/watch?v=61hn_QcZrLA" target="_blank" rel="noopener" data-i18n="video.youtube">Open on YouTube ↗</a></p>
     </section>
 
     <section class="niveis" id="niveis" aria-labelledby="titulo-niveis">
       <header class="cabeca-secao">
-        <p class="rotulo">04 — Quatro níveis, quatro atitudes</p>
-        <h2 id="titulo-niveis">Ninguém precisa entender de chuva em milímetros. <em>Só de cor.</em></h2>
+        <p class="rotulo" data-i18n="niv.rotulo">04 — Four levels, four actions</p>
+        <h2 id="titulo-niveis" data-i18n="niv.titulo">Nobody needs to understand rain in millimetres. <em>Just colours.</em></h2>
       </header>
       <ol class="niveis-lista">
         <li class="nivel n1" data-revela style="--i:0">
           <span class="nivel-sinal" aria-hidden="true"></span>
-          <h3>Tranquilo</h3>
-          <p class="nivel-frase">Pode ficar em casa.</p>
-          <p>O totem fica em silêncio e mostra o bairro e os vizinhos. Não manda ninguém sair.</p>
+          <h3 data-i18n="nivel.1">Calm</h3>
+          <p class="nivel-frase" data-i18n="niv.1.frase">You can stay home.</p>
+          <p data-i18n="niv.1.texto">The kiosk stays quiet and shows your neighbourhood and the ones next to it. It doesn't send anyone away.</p>
         </li>
         <li class="nivel n2" data-revela style="--i:1">
           <span class="nivel-sinal" aria-hidden="true"></span>
-          <h3>Atenção</h3>
-          <p class="nivel-frase">Pode acontecer. Fique pronto.</p>
-          <p>Deixe a mochila pronta. O totem já indica para onde ir, se precisar sair.</p>
+          <h3 data-i18n="nivel.2">Watch</h3>
+          <p class="nivel-frase" data-i18n="niv.2.frase">It may happen. Get ready.</p>
+          <p data-i18n="niv.2.texto">Keep your bag packed. The kiosk already shows where to go, in case you need to leave.</p>
         </li>
         <li class="nivel n3" data-revela style="--i:2">
           <span class="nivel-sinal" aria-hidden="true"></span>
-          <h3>Perigo</h3>
-          <p class="nivel-frase">Vai acontecer. Saia de casa.</p>
-          <p>Rota a pé até um hospital, bombeiros ou área segura num bairro tranquilo. Voz e sinal sonoro.</p>
+          <h3 data-i18n="nivel.3">Danger</h3>
+          <p class="nivel-frase" data-i18n="niv.3.frase">It will happen. Leave home.</p>
+          <p data-i18n="niv.3.texto">A walking route to a hospital, fire station or safe area in a calm neighbourhood. Voice and alarm tone.</p>
         </li>
         <li class="nivel n4" data-revela style="--i:3">
           <span class="nivel-sinal" aria-hidden="true"></span>
-          <h3>Extremo</h3>
-          <p class="nivel-frase">Está acontecendo. Saia agora.</p>
-          <p>Faixa piscando, telefones da Defesa Civil em destaque e o caminho mais curto para longe do risco.</p>
+          <h3 data-i18n="nivel.4">Extreme</h3>
+          <p class="nivel-frase" data-i18n="niv.4.frase">It's happening. Leave now.</p>
+          <p data-i18n="niv.4.texto">A flashing banner, Civil Defense numbers up front and the shortest way out of harm's reach.</p>
         </li>
       </ol>
     </section>
 
     <section class="rua" aria-labelledby="titulo-rua">
       <header class="cabeca-secao">
-        <p class="rotulo">05 — Feito para a rua, não para a vitrine</p>
-        <h2 id="titulo-rua">Decisões pequenas que <em>fazem diferença no dia</em>.</h2>
+        <p class="rotulo" data-i18n="rua.rotulo">05 — Built for the street, not the showroom</p>
+        <h2 id="titulo-rua" data-i18n="rua.titulo">Small decisions that <em>make a difference on the day</em>.</h2>
       </header>
       <div class="rua-grade">
         <article class="cartao cartao-largo" data-revela style="--i:0">
-          <figure class="cartao-foto"><img src="assets/totem-na-rua.jpg" alt="Montagem ilustrativa do totem Alerta Manaus em perigo de deslizamento numa comunidade em encosta" loading="lazy" width="1600" height="684"><span class="selo-ia">Montagem ilustrativa</span></figure>
+          <figure class="cartao-foto"><img src="assets/totem-na-rua.jpg" data-i18n-attr="alt:rua.foto-alt" alt="Illustrative mock-up of the Alerta Manaus kiosk showing landslide danger in a hillside community" loading="lazy" width="1600" height="684"><span class="selo-ia" data-i18n="rua.selo">Illustrative mock-up</span></figure>
           <div>
-            <h3>Cada totem sabe onde está</h3>
-            <p>O totem identifica o bairro pelo contorno oficial do OpenStreetMap e olha também os que fazem divisa. A
-              mesma tela em Educandos e em Cidade Nova mostra realidades diferentes.</p>
+            <h3 data-i18n="rua.c1.titulo">Every kiosk knows where it stands</h3>
+            <p data-i18n="rua.c1.texto">The kiosk finds its neighbourhood from the official OpenStreetMap boundary and also looks at the ones
+              that share a border. The same screen in Educandos and in Cidade Nova shows different realities.</p>
           </div>
         </article>
         <article class="cartao" data-revela style="--i:1">
           <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="4" width="24" height="40" rx="5"/><path d="M20 38h8"/><path d="M6 6l36 36"/></svg>
-          <h3>Ninguém precisa tocar</h3>
-          <p>Zoom automático: o mapa abre no bairro inteiro e depois aproxima no caminho. Nada de tela suja ou travada.</p>
+          <h3 data-i18n="rua.c2.titulo">Nobody has to touch it</h3>
+          <p data-i18n="rua.c2.texto">Automatic zoom: the map opens on the whole neighbourhood, then moves in on the route. No smudged or frozen screens.</p>
         </article>
         <article class="cartao" data-revela style="--i:2">
           <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18h8l10-8v28l-10-8H8z"/><path d="M33 17c3 4 3 10 0 14M38 12c6 7 6 17 0 24"/></svg>
-          <h3>Fala só quando importa</h3>
-          <p>Em dia tranquilo, silêncio. A voz e o sinal sonoro entram em atenção, perigo e extremo.</p>
+          <h3 data-i18n="rua.c3.titulo">Speaks only when it matters</h3>
+          <p data-i18n="rua.c3.texto">On a calm day, silence. Voice and alarm tone come in at watch, danger and extreme.</p>
         </article>
         <article class="cartao" data-revela style="--i:3">
           <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44s14-12 14-24a14 14 0 0 0-28 0c0 12 14 24 14 24z"/><path d="M24 14v12M18 20h12"/></svg>
-          <h3>Não manda você para outro alagado</h3>
-          <p>Hospital só vale se o bairro dele está tranquilo. Longe demais? O totem indica a área segura mais próxima.</p>
+          <h3 data-i18n="rua.c4.titulo">Won't send you into another flood</h3>
+          <p data-i18n="rua.c4.texto">A hospital only counts if its own neighbourhood is calm. Too far? The kiosk points to the nearest safe area.</p>
         </article>
         <article class="cartao" data-revela style="--i:4">
           <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18a26 26 0 0 1 36 0M12 25a17 17 0 0 1 24 0M18 32a8 8 0 0 1 12 0"/><circle cx="24" cy="38" r="2.5"/></svg>
-          <h3>Aguenta internet ruim</h3>
-          <p>Bairros e pontos de apoio ficam salvos no próprio sistema. Se a conexão cai, o totem avisa e volta sozinho.</p>
+          <h3 data-i18n="rua.c5.titulo">Copes with bad internet</h3>
+          <p data-i18n="rua.c5.texto">Neighbourhoods and support points are stored on the device. If the connection drops, the kiosk says so and recovers on its own.</p>
         </article>
       </div>
     </section>
 
     <section class="manifesto" aria-labelledby="titulo-manifesto">
       <p class="rotulo" id="titulo-manifesto">Manifesto · FRAPC Cosmos</p>
-      <blockquote class="manifesto-texto" id="manifesto-texto">
-        Enquanto os satélites orbitam o silêncio do espaço, o FRAPC Cosmos escuta o <em>coração de Manaus</em>.
-        Nós descemos a tecnologia da NASA das estrelas direto para as zonas mais vulneráveis da cidade.
-        Mais do que decodificar dados de radar, entregamos alívio e esperança.
-        Porque cada alerta emitido a tempo é <em>uma história inteira que não foi apagada</em>.
+      <blockquote class="manifesto-texto" id="manifesto-texto" data-i18n="manifesto.texto">
+        While satellites orbit the silence of space, FRAPC Cosmos listens to the <em>heart of Manaus</em>.
+        We bring NASA technology down from the stars, straight to the city's most vulnerable areas.
+        More than decoding radar data, we deliver relief and hope.
+        Because every alert sent in time is <em>a whole story that wasn't erased</em>.
       </blockquote>
     </section>
 
     <section class="tecnologia" id="tecnologia" aria-labelledby="titulo-tec">
       <canvas class="malha" data-malha="escura" aria-hidden="true"></canvas>
       <header class="cabeca-secao clara">
-        <p class="rotulo">06 — Por baixo do capô</p>
-        <h2 id="titulo-tec">Dados abertos, <em>modelo explicável</em>, código aberto.</h2>
+        <p class="rotulo" data-i18n="tec.rotulo">06 — Under the hood</p>
+        <h2 id="titulo-tec" data-i18n="tec.titulo">Open data, <em>an explainable model</em>, open source.</h2>
       </header>
-      <ol class="fluxo" aria-label="Caminho dos dados">
-        <li data-revela style="--i:0"><span class="fluxo-num">A</span><b>Satélite</b><small>SAR Sentinel-1 · NISAR banda L · relevo</small></li>
-        <li data-revela style="--i:1"><span class="fluxo-num">B</span><b>Chuva</b><small>Meteomatics · Open-Meteo · 1 h a 72 h</small></li>
-        <li data-revela style="--i:2"><span class="fluxo-num">C</span><b>Modelo</b><small>LightGBM · ocorrências da Defesa Civil</small></li>
-        <li data-revela style="--i:3"><span class="fluxo-num">D</span><b>Totem</b><small>API FastAPI · mapa Leaflet · imagens Esri</small></li>
+      <ol class="fluxo" data-i18n-attr="aria-label:tec.fluxo" aria-label="Data path">
+        <li data-revela style="--i:0"><span class="fluxo-num">A</span><b data-i18n="tec.a">Satellite</b><small data-i18n="tec.a.s">SAR Sentinel-1 · NISAR L-band · terrain</small></li>
+        <li data-revela style="--i:1"><span class="fluxo-num">B</span><b data-i18n="tec.b">Rain</b><small data-i18n="tec.b.s">Meteomatics · Open-Meteo · 1 h to 72 h</small></li>
+        <li data-revela style="--i:2"><span class="fluxo-num">C</span><b data-i18n="tec.c">Model</b><small data-i18n="tec.c.s">LightGBM · Civil Defense records</small></li>
+        <li data-revela style="--i:3"><span class="fluxo-num">D</span><b data-i18n="tec.d">Kiosk</b><small data-i18n="tec.d.s">FastAPI · Leaflet map · Esri imagery</small></li>
       </ol>
       <svg class="fluxo-linha" viewBox="0 0 1000 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10H1000"/></svg>
       <div class="tec-colunas">
         <div data-revela>
-          <h3>O que entra</h3>
+          <h3 data-i18n="tec.entra">What goes in</h3>
           <ul class="lista-mono">
-            <li>Radar SAR · retroespalhamento VV / VH</li>
-            <li>Modelo digital de elevação · cota e declividade</li>
-            <li>Chuva horária medida e prevista</li>
-            <li>Ocorrências históricas da Defesa Civil</li>
-            <li>Bairros, hospitais e bombeiros · OpenStreetMap</li>
+            <li data-i18n="tec.e1">SAR radar · VV / VH backscatter</li>
+            <li data-i18n="tec.e2">Digital elevation model · height and slope</li>
+            <li data-i18n="tec.e3">Hourly rainfall, measured and forecast</li>
+            <li data-i18n="tec.e4">Historical Civil Defense records</li>
+            <li data-i18n="tec.e5">Neighbourhoods, hospitals and fire stations · OpenStreetMap</li>
           </ul>
         </div>
         <div data-revela>
-          <h3>O que sai</h3>
+          <h3 data-i18n="tec.sai">What comes out</h3>
           <ul class="lista-mono">
-            <li>Nível de alagamento e deslizamento por bairro</li>
-            <li>Próximas 5 horas, amanhã e próximos 4 dias</li>
-            <li>Para onde ir e quanto tempo a pé</li>
-            <li>Uma tela por totem, atualizada a cada 15 s</li>
-            <li>API aberta: <code>GET /totem?lat=&amp;lng=</code></li>
+            <li data-i18n="tec.s1">Flood and landslide level for each neighbourhood</li>
+            <li data-i18n="tec.s2">Next 5 hours, tomorrow and the next 4 days</li>
+            <li data-i18n="tec.s3">Where to go and how long it takes on foot</li>
+            <li data-i18n="tec.s4">One screen per kiosk, refreshed every 15 s</li>
+            <li data-i18n="tec.s5">Open API: <code>GET /totem?lat=&amp;lng=</code></li>
           </ul>
         </div>
       </div>
@@ -303,11 +309,11 @@
 
     <section class="chamada" aria-labelledby="titulo-chamada">
       <canvas class="malha" data-malha="clara" aria-hidden="true"></canvas>
-      <h2 id="titulo-chamada" data-revela>Um totem em cada parada. <em>Um aviso antes do barro.</em></h2>
+      <h2 id="titulo-chamada" data-revela data-i18n="cta.titulo">A kiosk at every bus stop. <em>A warning before the mud.</em></h2>
       <div class="chamada-acoes" data-revela>
-        <a class="botao" href="#como-funciona">Ver o totem de novo</a>
-        <a class="botao botao-fantasma" href="https://github.com/Gridissss/FRAPC-by-COSMOS" target="_blank" rel="noopener">Código no GitHub</a>
-        <button type="button" class="botao botao-fantasma" data-abrir-docs>Ver mais detalhes</button>
+        <a class="botao" href="#como-funciona" data-i18n="cta.totem">See the kiosk again</a>
+        <a class="botao botao-fantasma" href="https://github.com/Gridissss/FRAPC-by-COSMOS" target="_blank" rel="noopener" data-i18n="cta.github">Code on GitHub</a>
+        <button type="button" class="botao botao-fantasma" data-abrir-docs data-i18n="cta.detalhes">More details</button>
       </div>
     </section>
   </main>
@@ -317,38 +323,38 @@
       <header class="docs-topo">
         <div>
           <p class="rotulo">NASA Space Apps · Manaus 2026</p>
-          <h2 id="docs-titulo">Mais detalhes do projeto</h2>
+          <h2 id="docs-titulo" data-i18n="docs.titulo">More about the project</h2>
         </div>
-        <button type="button" class="docs-fechar" data-fechar-docs aria-label="Fechar">×</button>
+        <button type="button" class="docs-fechar" data-fechar-docs data-i18n-attr="aria-label:docs.fechar" aria-label="Close">×</button>
       </header>
       <div class="docs-lista">
         <article class="doc">
-          <a class="doc-capa" data-cursor="Abrir" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">
-            <img src="assets/doc-canvas.jpg" alt="Primeira página do Storytelling Canvas do projeto" width="1100" height="778" loading="lazy">
+          <a class="doc-capa" data-cursor="Open" data-i18n-attr="data-cursor:docs.abrir" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">
+            <img src="assets/doc-canvas.jpg" data-i18n-attr="alt:doc1.alt" alt="First page of the project's Storytelling Canvas" width="1100" height="778" loading="lazy">
           </a>
           <div class="doc-corpo">
-            <span class="doc-tipo">PDF · Storytelling Canvas</span>
-            <h3>As pessoas que vivem em situações de periferia e ribeirinhos</h3>
-            <p>Para quem é o totem, a dor que ele evita, como funciona, as evidências (dados geoprocessados e censitários,
-              Python, pandas e LightGBM) e o impacto esperado: a preservação da vida.</p>
+            <span class="doc-tipo" data-i18n="doc1.tipo">PDF · Storytelling Canvas · in Portuguese</span>
+            <h3 data-i18n="doc1.titulo">People living on the urban outskirts and along the rivers</h3>
+            <p data-i18n="doc1.texto">Who the kiosk is for, the harm it prevents, how it works, the evidence (geoprocessed and census data,
+              Python, pandas and LightGBM) and the impact we expect: keeping people alive.</p>
             <div class="doc-acoes">
-              <a class="botao botao-pequeno" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">Abrir PDF</a>
-              <a class="botao botao-pequeno botao-fantasma" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" download>Baixar</a>
+              <a class="botao botao-pequeno" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener" data-i18n="docs.abrir-pdf">Open PDF</a>
+              <a class="botao botao-pequeno botao-fantasma" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" download data-i18n="docs.baixar">Download</a>
             </div>
           </div>
         </article>
         <article class="doc">
-          <a class="doc-capa" data-cursor="Abrir" href="../5w2h.pdf" target="_blank" rel="noopener">
-            <img src="assets/doc-5w2h.jpg" alt="Primeira página do 5W2H do projeto" width="1100" height="619" loading="lazy">
+          <a class="doc-capa" data-cursor="Open" data-i18n-attr="data-cursor:docs.abrir" href="../5w2h.pdf" target="_blank" rel="noopener">
+            <img src="assets/doc-5w2h.jpg" data-i18n-attr="alt:doc2.alt" alt="First page of the project's 5W2H plan" width="1100" height="619" loading="lazy">
           </a>
           <div class="doc-corpo">
-            <span class="doc-tipo">PDF · Planejamento</span>
+            <span class="doc-tipo" data-i18n="doc2.tipo">PDF · Planning · in Portuguese</span>
             <h3>5W2H</h3>
-            <p>O quê, por quê, onde, quando, quem, como e quanto: o plano do totem, do mockup à manufatura, com dados do
-              radar SAR e interface acessível.</p>
+            <p data-i18n="doc2.texto">What, why, where, when, who, how and how much: the kiosk plan from mock-up to manufacturing, with SAR
+              radar data and an accessible interface.</p>
             <div class="doc-acoes">
-              <a class="botao botao-pequeno" href="../5w2h.pdf" target="_blank" rel="noopener">Abrir PDF</a>
-              <a class="botao botao-pequeno botao-fantasma" href="../5w2h.pdf" download>Baixar</a>
+              <a class="botao botao-pequeno" href="../5w2h.pdf" target="_blank" rel="noopener" data-i18n="docs.abrir-pdf">Open PDF</a>
+              <a class="botao botao-pequeno botao-fantasma" href="../5w2h.pdf" download data-i18n="docs.baixar">Download</a>
             </div>
           </div>
         </article>
@@ -359,13 +365,14 @@
   <footer class="rodape">
     <img src="assets/logo.svg" alt="FRAPC by Cosmos" width="250" height="120" class="rodape-logo">
     <div class="rodape-texto">
-      <p><b>Projeto Cosmos</b> — alerta de alagamento e deslizamento para Manaus · NASA Space Apps · Manaus 2026.</p>
-      <p class="rodape-tel">Emergência: Defesa Civil <b>199</b> · Bombeiros <b>193</b> · SAMU <b>192</b></p>
+      <p data-i18n="rodape.texto"><b>Project Cosmos</b> — flood and landslide alerts for Manaus · NASA Space Apps · Manaus 2026.</p>
+      <p class="rodape-tel" data-i18n="rodape.tel">Emergency: Civil Defense <b>199</b> · Fire Department <b>193</b> · Ambulance (SAMU) <b>192</b></p>
     </div>
-    <p class="rodape-credito">Imagens de satélite © Esri, Maxar · Mapas © OpenStreetMap · Dados de radar ESA / NASA · Imagens marcadas como IA são ilustrativas</p>
+    <p class="rodape-credito" data-i18n="rodape.credito">Satellite imagery © Esri, Maxar · Maps © OpenStreetMap · Radar data ESA / NASA · Images marked as AI are illustrative</p>
     <p class="rodape-marca" aria-hidden="true">COSMOS</p>
   </footer>
 
+  <script src="js/textos-pt.js"></script>
   <script src="js/site.js"></script>
 </body>
 </html>

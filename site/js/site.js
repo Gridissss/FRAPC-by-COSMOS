@@ -8,14 +8,88 @@
   var nivelAtual = 3;
 
   var COR_NIVEL = { 1: "rgba(22, 163, 74, .45)", 2: "rgba(250, 204, 21, .45)", 3: "rgba(251, 146, 60, .55)", 4: "rgba(220, 38, 38, .6)" };
-  var NOMES_TELA = {
-    resumo: "Hoje na cidade",
-    "risco:deslizamento": "Deslizamento", "risco:alagamento": "Alagamento",
-    "mapa:deslizamento": "Mapa · Deslizamento", "mapa:alagamento": "Mapa · Alagamento",
-    proximas: "Próximas horas", previsao: "Próximos dias", kit: "Mochila pronta", ajuda: "Pedir ajuda"
+
+  /* ---------- Botões: texto que rola para cima no hover ---------- */
+
+  // Roda antes da tradução: o idioma troca só o .botao-texto, sem desmontar o botão
+  Array.prototype.forEach.call(document.querySelectorAll(".botao"), function (b) {
+    Array.prototype.slice.call(b.childNodes).forEach(function (no) {
+      if (no.nodeType !== 3 || !no.textContent.trim()) return;
+      var rotulo = document.createElement("span");
+      rotulo.className = "botao-rotulo";
+      var texto = document.createElement("span");
+      texto.className = "botao-texto";
+      texto.textContent = no.textContent.trim();
+      rotulo.appendChild(texto);
+      b.replaceChild(rotulo, no);
+    });
+  });
+
+  /* ---------- Idioma: inglês por padrão (o próprio HTML), português do Brasil opcional ---------- */
+
+  var PT = window.COSMOS_PT || {};
+  // Textos que só existem no JavaScript; os do HTML em inglês são lidos da própria página
+  var EN = {
+    "js.tela.resumo": "Today in the city",
+    "js.tela.risco:deslizamento": "Landslide", "js.tela.risco:alagamento": "Flooding",
+    "js.tela.mapa:deslizamento": "Map · Landslide", "js.tela.mapa:alagamento": "Map · Flooding",
+    "js.tela.proximas": "Next hours", "js.tela.previsao": "Next days", "js.tela.kit": "Go-bag ready", "js.tela.ajuda": "Getting help",
+    "js.youtube": "Project Cosmos video on YouTube"
   };
+  var lingua = "en";
+  var comTexto = document.querySelectorAll("[data-i18n]");
+  var comAtributo = document.querySelectorAll("[data-i18n-attr]");
+
+  function alvoTexto(el) {
+    return (el.classList.contains("botao") && el.querySelector(".botao-texto")) || el;
+  }
+  function paresAtributo(el) {
+    return el.getAttribute("data-i18n-attr").split(";").map(function (p) { return p.split(":"); });
+  }
+  Array.prototype.forEach.call(comTexto, function (el) {
+    var chave = el.getAttribute("data-i18n");
+    if (!(chave in EN)) EN[chave] = alvoTexto(el).innerHTML.trim().replace(/\s+/g, " ");
+  });
+  Array.prototype.forEach.call(comAtributo, function (el) {
+    paresAtributo(el).forEach(function (p) { if (!(p[1] in EN)) EN[p[1]] = el.getAttribute(p[0]) || ""; });
+  });
+
+  function t(chave) {
+    var v = lingua === "pt" ? PT[chave] : EN[chave];
+    return v == null ? EN[chave] || "" : v;
+  }
+  function localeNumero() { return lingua === "pt" ? "pt-BR" : "en-US"; }
+
+  function aplicarLingua(l) {
+    lingua = l === "pt" ? "pt" : "en";
+    document.documentElement.lang = lingua === "pt" ? "pt-BR" : "en";
+    Array.prototype.forEach.call(comTexto, function (el) {
+      alvoTexto(el).innerHTML = t(el.getAttribute("data-i18n"));
+    });
+    Array.prototype.forEach.call(comAtributo, function (el) {
+      paresAtributo(el).forEach(function (p) { el.setAttribute(p[0], t(p[1])); });
+    });
+    var seletor = document.querySelector(".lingua");
+    if (seletor) {
+      seletor.setAttribute("data-ativa", lingua);
+      Array.prototype.forEach.call(seletor.querySelectorAll("[data-lingua]"), function (b) {
+        b.setAttribute("aria-pressed", b.getAttribute("data-lingua") === lingua ? "true" : "false");
+      });
+    }
+  }
+
+  var linguaPedida = (location.search.match(/[?&]lang=(pt|en)\b/) || [])[1];
+  try { linguaPedida = linguaPedida || localStorage.getItem("cosmos-lingua"); } catch (e) {}
+  if (linguaPedida === "pt") aplicarLingua("pt");
 
   /* ---------- Totem embutido ---------- */
+
+  var telaAtual = "resumo";
+  function rotularTela() {
+    var rotulo = document.getElementById("totem-tela");
+    if (rotulo) rotulo.textContent = t("js.tela." + telaAtual) || t("js.tela." + telaAtual.split(":")[0]);
+  }
+  rotularTela();
 
   function falarComTotem(msg) {
     if (totem && totem.contentWindow) totem.contentWindow.postMessage(msg, "*");
@@ -27,9 +101,8 @@
 
   window.addEventListener("message", function (e) {
     if (!totem || e.source !== totem.contentWindow || !e.data || e.data.totem !== "mostrando") return;
-    var chave = e.data.id ? e.data.tipo + ":" + e.data.id : e.data.tipo;
-    var rotulo = document.getElementById("totem-tela");
-    if (rotulo) rotulo.textContent = NOMES_TELA[chave] || NOMES_TELA[e.data.tipo] || "";
+    telaAtual = e.data.id ? e.data.tipo + ":" + e.data.id : e.data.tipo;
+    rotularTela();
     if (e.data.nivel >= 1 && e.data.nivel <= 4) pintarBrilho(e.data.nivel);
   });
 
@@ -148,11 +221,12 @@
 
   function contar(el) {
     var alvo = parseInt(el.getAttribute("data-alvo"), 10);
-    if (menosMovimento) { el.textContent = alvo.toLocaleString("pt-BR"); return; }
+    el.setAttribute("data-contado", "");
+    if (menosMovimento) { el.textContent = alvo.toLocaleString(localeNumero()); return; }
     var t0 = performance.now();
-    (function passo(t) {
-      var p = Math.min(1, (t - t0) / 1600);
-      el.textContent = Math.round(alvo * (1 - Math.pow(1 - p, 4))).toLocaleString("pt-BR");
+    (function passo(agora) {
+      var p = Math.min(1, Math.max(0, agora - t0) / 1600);
+      el.textContent = Math.round(alvo * (1 - Math.pow(1 - p, 4))).toLocaleString(localeNumero());
       if (p < 1) requestAnimationFrame(passo);
     })(t0);
   }
@@ -180,6 +254,39 @@
     Array.prototype.forEach.call(document.querySelectorAll(".conta"), function (el) { el.textContent = el.getAttribute("data-alvo"); });
   }
 
+  /* ---------- Seletor de idioma ---------- */
+
+  var titulosPartidos = !menosMovimento && "IntersectionObserver" in window;
+
+  function trocarLingua(l) {
+    if (l === lingua) return;
+    try { localStorage.setItem("cosmos-lingua", l); } catch (e) {}
+    var raizHtml = document.documentElement;
+    function trocar() {
+      aplicarLingua(l);
+      // Os títulos e o manifesto foram quebrados em palavras: quebra de novo o texto traduzido
+      if (titulosPartidos) Array.prototype.forEach.call(titulos, function (h) { partirPalavras(h, "palavra", true); });
+      if (palavrasManifesto.length) {
+        partirPalavras(manifesto, "m-palavra", false);
+        palavrasManifesto = manifesto.querySelectorAll(".m-palavra");
+        acenderManifesto();
+      }
+      Array.prototype.forEach.call(document.querySelectorAll(".conta[data-contado]"), function (el) {
+        el.textContent = parseInt(el.getAttribute("data-alvo"), 10).toLocaleString(localeNumero());
+      });
+      rotularTela();
+      raizHtml.classList.remove("trocando-lingua");
+    }
+    if (menosMovimento) { trocar(); return; }
+    // Texto some, troca e volta: evita o "pulo" de layout no meio da leitura
+    raizHtml.classList.add("trocando-lingua");
+    setTimeout(trocar, 220);
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".lingua [data-lingua]"), function (b) {
+    b.addEventListener("click", function () { trocarLingua(b.getAttribute("data-lingua")); });
+  });
+
   /* ---------- Vídeo: arquivo próprio tocando na página; YouTube como reserva ---------- */
 
   var moldura = document.getElementById("video-moldura");
@@ -197,7 +304,7 @@
     if (video) video.remove();
     var player = document.createElement("iframe");
     player.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
-    player.title = "Vídeo do Projeto Cosmos no YouTube";
+    player.title = t("js.youtube");
     player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
     player.referrerPolicy = "strict-origin-when-cross-origin";
     player.allowFullscreen = true;
@@ -262,6 +369,8 @@
     var inclina = document.querySelector(".totem-inclina");
     if (palcoTotem && inclina) {
       palcoTotem.addEventListener("pointermove", function (e) {
+        // Em cima da tela o totem se endireita: fica de frente para quem olha e o cursor repassado cai no ponto exato
+        if (e.target === totem) { inclina.style.transform = ""; return; }
         var r = inclina.getBoundingClientRect();
         var dx = (e.clientX - (r.left + r.width / 2)) / r.width;
         var dy = (e.clientY - (r.top + r.height / 2)) / r.height;
@@ -280,22 +389,8 @@
     });
 
     iniciarCursor();
+    repassarMouseDoTotem();
   }
-
-  /* ---------- Botões: texto que rola para cima no hover ---------- */
-
-  Array.prototype.forEach.call(document.querySelectorAll(".botao"), function (b) {
-    Array.prototype.slice.call(b.childNodes).forEach(function (no) {
-      if (no.nodeType !== 3 || !no.textContent.trim()) return;
-      var rotulo = document.createElement("span");
-      rotulo.className = "botao-rotulo";
-      var texto = document.createElement("span");
-      texto.className = "botao-texto";
-      texto.textContent = no.textContent.trim();
-      rotulo.appendChild(texto);
-      b.replaceChild(rotulo, no);
-    });
-  });
 
   /* ---------- Cursor próprio: ponto + anel que segue com atraso, cresce sobre o que é clicável ---------- */
 
@@ -328,9 +423,10 @@
       mostrar(true);
     }, { passive: true });
 
-    // Iframes (totem, YouTube) e saída da janela: o cursor nativo assume
+    // Saída da janela ou entrada num iframe que não repassa o mouse (YouTube): o cursor nativo assume
     document.addEventListener("pointerout", function (e) {
-      if (!e.relatedTarget || e.relatedTarget.tagName === "IFRAME") mostrar(false);
+      var para = e.relatedTarget;
+      if (!para || (para.tagName === "IFRAME" && !para.hasAttribute("data-repassa"))) mostrar(false);
     });
 
     var SELETOR = "a, button, [data-cursor], .simulador button, .doc-capa";
@@ -369,6 +465,41 @@
       anel.style.transform = "translate(" + ax.toFixed(1) + "px," + ay.toFixed(1) + "px)";
       requestAnimationFrame(seguir);
     })();
+  }
+
+  // O totem é um quiosque (cursor: none) dentro de um iframe, que engole os eventos do mouse.
+  // Como é da mesma origem, os movimentos e cliques de lá são repassados para a página:
+  // o cursor próprio, a inclinação 3D e a malha continuam funcionando por cima dele.
+  function repassarMouseDoTotem() {
+    if (!totem) return;
+    function ligarDocumento() {
+      var doc;
+      try { doc = totem.contentDocument; } catch (e) { return; }
+      if (!doc || !doc.documentElement || doc.URL === "about:blank" || doc.__repassando) return;
+      doc.__repassando = true;
+      totem.setAttribute("data-repassa", "");
+      var estilo = doc.createElement("style");
+      estilo.textContent = "*, *::before, *::after { cursor: none !important; }";
+      (doc.head || doc.documentElement).appendChild(estilo);
+
+      function repassar(tipo, e) {
+        if (e.pointerType && e.pointerType !== "mouse") return;
+        var r = totem.getBoundingClientRect();
+        var sx = totem.clientWidth ? r.width / totem.clientWidth : 1;
+        var sy = totem.clientHeight ? r.height / totem.clientHeight : 1;
+        totem.dispatchEvent(new PointerEvent(tipo, {
+          bubbles: true, pointerType: "mouse", button: e.button, buttons: e.buttons,
+          clientX: r.left + e.clientX * sx, clientY: r.top + e.clientY * sy
+        }));
+      }
+      doc.addEventListener("pointermove", function (e) { repassar("pointermove", e); }, { passive: true });
+      doc.addEventListener("pointerdown", function (e) { repassar("pointerdown", e); });
+      doc.addEventListener("pointerup", function (e) { repassar("pointerup", e); });
+      // Entrou no totem vindo de fora: o cursor deixa o modo "sobre botão"
+      doc.addEventListener("pointerover", function (e) { if (!e.relatedTarget) repassar("pointerover", e); });
+    }
+    totem.addEventListener("load", ligarDocumento);
+    ligarDocumento();
   }
 
   /* ---------- Faixa de bairros: anda sozinha e acelera com a rolagem ---------- */

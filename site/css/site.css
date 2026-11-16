@@ -117,6 +117,35 @@ p { margin: 0; }
 .nav-links a:hover, .nav-docs:hover { opacity: 1; }
 .nav-docs { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
 
+/* Seletor de idioma: pílula que desliza entre EN e PT-BR */
+.lingua {
+  position: relative; flex: none; display: grid; grid-template-columns: 1fr 1fr; padding: 3px;
+  border: 1px solid rgba(255, 255, 255, .26); border-radius: 999px;
+  font: 500 .72rem/1 var(--f-mono); letter-spacing: .06em;
+}
+.lingua::before {
+  content: ""; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px);
+  border-radius: 999px; background: #fff;
+  transition: transform .55s var(--suave-saida);
+}
+.lingua[data-ativa="pt"]::before { transform: translateX(100%); }
+.lingua button {
+  position: relative; z-index: 1; min-width: 3.6em; padding: 7px 9px; border: 0; border-radius: 999px;
+  background: none; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer;
+  opacity: .72; transition: color .35s, opacity .2s;
+}
+.lingua button:hover { opacity: 1; }
+.lingua button[aria-pressed="true"] { color: var(--noite); opacity: 1; }
+.lingua button:focus-visible { outline: 2px solid var(--laranja); outline-offset: 2px; }
+
+/* Troca de idioma: o texto esmaece, troca e volta */
+.palco-texto, .totem-legenda, .simulador, .totem-nota, main > section, .rodape-texto, .rodape-credito, .nav-links {
+  transition: opacity .22s ease, filter .22s ease;
+}
+.trocando-lingua :is(.palco-texto, .totem-legenda, .simulador, .totem-nota, main > section, .rodape-texto, .rodape-credito, .nav-links) {
+  opacity: 0; filter: blur(6px);
+}
+
 /* Barra de progresso de leitura */
 .progresso-leitura { position: fixed; inset: 0 0 auto; z-index: 101; height: 3px; pointer-events: none; }
 .progresso-leitura span { display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--agua), var(--azul) 50%, var(--laranja)); }
@@ -203,6 +232,9 @@ section { position: relative; }
 .totem-brilho { position: absolute; inset: 14px; border-radius: 22px; pointer-events: none; background: linear-gradient(115deg, rgba(255, 255, 255, .14), transparent 32%); }
 .totem-pe { width: 34%; height: 46px; margin-top: -2px; background: linear-gradient(90deg, #121b2c, #26324a 50%, #121b2c); clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
 .totem-legenda { display: flex; align-items: center; gap: 10px; margin-top: 18px; font: 400 .82rem/1 var(--f-mono); color: var(--nevoa); }
+.totem-nota { display: flex; align-items: center; gap: 8px; height: 22px; margin: -36px 0 14px; white-space: nowrap; font: 400 .7rem/1 var(--f-mono); letter-spacing: .02em; color: var(--nevoa); opacity: .75; }
+.totem-nota::before { content: "PT-BR"; padding: 4px 6px; border: 1px solid currentColor; border-radius: 6px; font-size: .62rem; }
+.totem-nota:empty { display: none; }
 .simulador { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; }
 .simulador-rotulo { width: 100%; text-align: center; font: 500 .72rem/1 var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--nevoa); }
 .simulador button {
@@ -439,7 +471,7 @@ section { position: relative; }
 /* ---------- Telas menores ---------- */
 @media (max-width: 1080px) {
   .nav-links { display: none; }
-  .nav .botao-pequeno { margin-left: auto; }
+  .lingua { margin-left: auto; }
   .niveis-lista, .rua-grade, .fluxo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 900px) {
@@ -456,6 +488,7 @@ section { position: relative; }
   .passo { min-height: auto; padding: 36px 0; opacity: 1; }
   .dica-rolagem { display: none; }
   .totem-fixo { position: static; padding: 10px 0 40px; }
+  .totem-nota { margin: 0 0 12px; }
   .totem-aparelho { height: auto; width: min(100%, 360px); }
   .problema-grade { grid-template-columns: minmax(0, 1fr); }
   .foto-grande, .foto-pequena, .problema-texto { grid-column: 1; grid-row: auto; }
@@ -464,6 +497,7 @@ section { position: relative; }
   .docs-lista { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 560px) {
+  .nav .botao-pequeno { display: none; }
   .numeros { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .niveis-lista, .rua-grade, .fluxo { grid-template-columns: minmax(0, 1fr); }
   .cartao-largo { grid-column: auto; grid-row: auto; }

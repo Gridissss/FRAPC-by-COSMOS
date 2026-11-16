@@ -9,6 +9,7 @@
   var RECARREGAR_MIN = 10;
   // ?vitrine: totem embutido no site de divulgação (sem painel, sem som, com dados de exemplo)
   var VITRINE = /[?&]vitrine(=|&|$)/.test(location.search);
+  if (VITRINE) document.documentElement.classList.add("vitrine");
   // Navegação manual (setas, botões, toque e teclado). Temporária: ponha false na instalação final do totem.
   var MANUAL = !VITRINE;
   // Voz e sinal sonoro: o Chrome do totem precisa iniciar com --autoplay-policy=no-user-gesture-required.
