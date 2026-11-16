@@ -12,6 +12,31 @@
   if (VITRINE) document.documentElement.classList.add("vitrine");
   // Navegação manual (setas, botões, toque e teclado). Temporária: ponha false na instalação final do totem.
   var MANUAL = !VITRINE;
+
+  // Idioma: ?lang=en ou ?lang=pt na URL; no painel de teste a escolha fica salva neste navegador
+  var LINGUA_CHAVE = "totem.lingua";
+  var LINGUA = (location.search.match(/[?&]lang=(en|pt)\b/) || [])[1];
+  if (!LINGUA && MANUAL) {
+    try { LINGUA = localStorage.getItem(LINGUA_CHAVE); } catch (e) { /* sem localStorage */ }
+  }
+  LINGUA = LINGUA === "en" ? "en" : "pt";
+  var INGLES = LINGUA === "en";
+  var LOCALE = INGLES ? "en-US" : "pt-BR";
+  var TEXTOS_EN = window.TOTEM_EN || {};
+  document.documentElement.lang = INGLES ? "en" : "pt-BR";
+  if (INGLES && TEXTOS_EN[document.title]) document.title = TEXTOS_EN[document.title];
+
+  // Texto na língua do totem; {chave} é trocado pelo valor de v
+  function T(s, v) {
+    var r = INGLES && TEXTOS_EN[s] != null ? TEXTOS_EN[s] : s;
+    return v ? r.replace(/\{(\w+)\}/g, function (_, k) { return v[k] != null ? v[k] : ""; }) : r;
+  }
+
+  // Nomes que vêm da API: "Bairro X" vira "X neighbourhood"; nomes próprios ficam como estão
+  function lugar(s) {
+    var m = INGLES && /^Bairro (.+)$/.exec(s || "");
+    return m ? T("Bairro {b}", { b: m[1] }) : T(s);
+  }
   // Voz e sinal sonoro: o Chrome do totem precisa iniciar com --autoplay-policy=no-user-gesture-required.
   var VOZ = !VITRINE;
   var SOM = !VITRINE;
@@ -20,7 +45,7 @@
   var TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
   var TILES_RUAS = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}";
   var TILES_NOMES = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
-  var TILES_ATRIB = "Imagens © Esri, Maxar, Earthstar Geographics · © OpenStreetMap";
+  var TILES_ATRIB = T("Imagens © Esri, Maxar, Earthstar Geographics · © OpenStreetMap");
   // Mapa: tempo na visão geral antes do zoom automático aproximar
   var ZOOM_AUTO_MS = 3000;
   var ROTA_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot/";
@@ -30,14 +55,14 @@
 
   // Para onde ir: hospital, bombeiros, Defesa Civil, ponto de encontro ou o bairro mais seguro
   var DESTINOS = {
-    hospital: { rotulo: "Hospital", icone: "cruz" },
-    bombeiros: { rotulo: "Bombeiros", icone: "fogo" },
-    defesa_civil: { rotulo: "Defesa Civil", icone: "sirene" },
-    abrigo: { rotulo: "Ponto de encontro", icone: "seguro" },
-    area: { rotulo: "Área segura", icone: "seguro" },
-    area_menos_risco: { rotulo: "Área mais tranquila", icone: "seguro" },
-    bairro: { rotulo: "Área segura", icone: "seguro" },
-    ponto: { rotulo: "Ponto seguro", icone: "seguro" }
+    hospital: { rotulo: T("Hospital"), icone: "cruz" },
+    bombeiros: { rotulo: T("Bombeiros"), icone: "fogo" },
+    defesa_civil: { rotulo: T("Defesa Civil"), icone: "sirene" },
+    abrigo: { rotulo: T("Ponto de encontro"), icone: "seguro" },
+    area: { rotulo: T("Área segura"), icone: "seguro" },
+    area_menos_risco: { rotulo: T("Área mais tranquila"), icone: "seguro" },
+    bairro: { rotulo: T("Área segura"), icone: "seguro" },
+    ponto: { rotulo: T("Ponto seguro"), icone: "seguro" }
   };
 
   function destino(seg) {
@@ -45,45 +70,45 @@
   }
 
   var NIVEIS = {
-    1: { nome: "Tranquilo", curto: "Tranquilo", sig: "Sem risco" },
-    2: { nome: "Atenção", curto: "Atenção", sig: "Pode acontecer" },
-    3: { nome: "Perigo", curto: "Perigo", sig: "Vai acontecer" },
-    4: { nome: "Perigo extremo", curto: "Extremo", sig: "Está acontecendo" }
+    1: { nome: T("Tranquilo"), curto: T("Tranquilo"), sig: T("Sem risco") },
+    2: { nome: T("Atenção"), curto: T("Atenção"), sig: T("Pode acontecer") },
+    3: { nome: T("Perigo"), curto: T("Perigo"), sig: T("Vai acontecer") },
+    4: { nome: T("Perigo extremo"), curto: T("Extremo"), sig: T("Está acontecendo") }
   };
 
   // Mensagem principal em pictograma: ficar em casa, ficar atento ou sair
   var VEREDITO = {
-    1: { icone: "casaok", titulo: "Tudo tranquilo", sub: "Pode ficar em casa" },
-    2: { icone: "olho", titulo: "Fique atento", sub: "Pode acontecer. Fique pronto" },
-    3: { icone: "correr", titulo: "Saia de casa", sub: "Vai acontecer. Vá ao ponto seguro" },
-    4: { icone: "correr", titulo: "Saia agora!", sub: "Está acontecendo! Vá já ao ponto seguro" }
+    1: { icone: "casaok", titulo: T("Tudo tranquilo"), sub: T("Pode ficar em casa") },
+    2: { icone: "olho", titulo: T("Fique atento"), sub: T("Pode acontecer. Fique pronto") },
+    3: { icone: "correr", titulo: T("Saia de casa"), sub: T("Vai acontecer. Vá ao ponto seguro") },
+    4: { icone: "correr", titulo: T("Saia agora!"), sub: T("Está acontecendo! Vá já ao ponto seguro") }
   };
 
   var RISCOS = {
-    deslizamento: { titulo: "Deslizamento", curto: "Morro", icone: "morro", prevenir: ["mochila", "Deixe a mochila pronta"] },
-    alagamento: { titulo: "Alagamento", curto: "Cheia", icone: "casa", prevenir: ["documento", "Guarde documentos e coisas no alto"] }
+    deslizamento: { titulo: T("Deslizamento"), curto: T("Morro"), icone: "morro", prevenir: ["mochila", T("Deixe a mochila pronta")] },
+    alagamento: { titulo: T("Alagamento"), curto: T("Cheia"), icone: "casa", prevenir: ["documento", T("Guarde documentos e coisas no alto")] }
   };
   var ORDEM = ["deslizamento", "alagamento"];
 
   var ACOES = {
     deslizamento: {
-      cuidado: [["rachadura", "Veja rachaduras e árvores inclinadas"], ["mochila", "Deixe a mochila pronta"], ["telefone", "Viu sinais? Ligue 199"]],
-      perigo: [["correr", "Saia de casa e vá ao ponto seguro"], ["idoso", "Leve crianças e idosos"], ["rachadura", "Só volte quando a Defesa Civil liberar"]]
+      cuidado: [["rachadura", T("Veja rachaduras e árvores inclinadas")], ["mochila", T("Deixe a mochila pronta")], ["telefone", T("Viu sinais? Ligue 199")]],
+      perigo: [["correr", T("Saia de casa e vá ao ponto seguro")], ["idoso", T("Leve crianças e idosos")], ["rachadura", T("Só volte quando a Defesa Civil liberar")]]
     },
     alagamento: {
-      cuidado: [["documento", "Guarde documentos no alto"], ["olho", "Olhe a rua e o rio"], ["telefone", "Água subindo? Ligue 199"]],
-      perigo: [["correr", "Vá para o ponto seguro"], ["luz", "Desligue a luz"], ["aguax", "Não atravesse água na rua"]]
+      cuidado: [["documento", T("Guarde documentos no alto")], ["olho", T("Olhe a rua e o rio")], ["telefone", T("Água subindo? Ligue 199")]],
+      perigo: [["correr", T("Vá para o ponto seguro")], ["luz", T("Desligue a luz")], ["aguax", T("Não atravesse água na rua")]]
     }
   };
 
-  var KIT = [["agua", "Água"], ["documento", "Documentos"], ["lanterna", "Lanterna"], ["remedio", "Remédios"], ["comida", "Comida"], ["celular", "Celular carregado"]];
+  var KIT = [["agua", T("Água")], ["documento", T("Documentos")], ["lanterna", T("Lanterna")], ["remedio", T("Remédios")], ["comida", T("Comida")], ["celular", T("Celular carregado")]];
 
   var DICAS = [
-    ["chuva", "Chuva forte: afaste-se de barrancos e encostas"],
-    ["aguax", "Não atravesse rua alagada a pé nem de carro"],
-    ["idoso", "Ajude vizinhos idosos e crianças a sair"],
-    ["mochila", "Deixe documentos e remédios numa mochila"],
-    ["rachadura", "Rachadura nova na parede? Avise a Defesa Civil"]
+    ["chuva", T("Chuva forte: afaste-se de barrancos e encostas")],
+    ["aguax", T("Não atravesse rua alagada a pé nem de carro")],
+    ["idoso", T("Ajude vizinhos idosos e crianças a sair")],
+    ["mochila", T("Deixe documentos e remédios numa mochila")],
+    ["rachadura", T("Rachadura nova na parede? Avise a Defesa Civil")]
   ];
 
   var ICONES = {
@@ -158,15 +183,15 @@
   function diaSemana(k) {
     var d = new Date();
     d.setDate(d.getDate() + k);
-    return ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][d.getDay()];
+    return T(["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][d.getDay()]);
   }
 
   function nomeDia(k) {
-    return k === 0 ? "Hoje" : k === 1 ? "Amanhã" : diaSemana(k);
+    return k === 0 ? T("Hoje") : k === 1 ? T("Amanhã") : diaSemana(k);
   }
 
   function quando(k) {
-    return k === 1 ? "Amanhã" : "Em " + k + " dias";
+    return k === 1 ? T("Amanhã") : T("Em {n} dias", { n: k });
   }
 
   function acoes(id, n) {
@@ -187,14 +212,14 @@
   }
 
   var ESTADOS = {
-    agora: { nome: "Acontecendo agora", icone: "sirene" },
-    perto: { nome: "Muito perto de acontecer", icone: "relogio" },
-    vai: { nome: "Vai acontecer", icone: "relogio" },
-    pode: { nome: "Pode acontecer", icone: "olho" }
+    agora: { nome: T("Acontecendo agora"), icone: "sirene" },
+    perto: { nome: T("Muito perto de acontecer"), icone: "relogio" },
+    vai: { nome: T("Vai acontecer"), icone: "relogio" },
+    pode: { nome: T("Pode acontecer"), icone: "olho" }
   };
 
   function textoHoras(h) {
-    return h === 0 ? "Agora" : h >= 24 ? "Amanhã" : h === 1 ? "Em 1 hora" : "Em " + h + " horas";
+    return h === 0 ? T("Agora") : h >= 24 ? T("Amanhã") : h === 1 ? T("Em 1 hora") : T("Em {n} horas", { n: h });
   }
 
   function estadoEvento(horas, prob, nv) {
@@ -367,14 +392,14 @@
     return L.divIcon({
       className: "pin-wrap", iconSize: [0, 0],
       html: '<div class="pin n' + n + (b.atual ? " atual" : "") + '"' + atraso(k) + '><span class="pin-halo"></span><span class="pin-c">' + ic("n" + n) + '</span><b class="pin-t">' +
-        (b.atual ? "Seu bairro · " : "") + b.nome + "</b></div>"
+        (b.atual ? T("Seu bairro · ") : "") + b.nome + "</b></div>"
     });
   }
 
   function pinVoce() {
     return L.divIcon({
       className: "pin-wrap", iconSize: [0, 0],
-      html: '<div class="pin-voce"><span class="anel"></span><span class="anel b"></span><span class="pv-c">' + ic("voce") + '</span><b class="pin-t pv-t">Você está aqui</b></div>'
+      html: '<div class="pin-voce"><span class="anel"></span><span class="anel b"></span><span class="pv-c">' + ic("voce") + '</span><b class="pin-t pv-t">' + T("Você está aqui") + "</b></div>"
     });
   }
 
@@ -551,7 +576,7 @@
 
   function onde(id) {
     var top = D.bairros.slice().sort(function (a, b) { return b[id] - a[id]; }).slice(0, 3);
-    return '<div class="onde in"' + atraso(4) + '><span class="onde-t">' + ic("seguro") + "Bairros</span>" + top.map(function (b) {
+    return '<div class="onde in"' + atraso(4) + '><span class="onde-t">' + ic("seguro") + T("Bairros") + "</span>" + top.map(function (b) {
       return '<span class="onde-b n' + b[id] + '"><span class="onde-ic">' + ic("n" + b[id]) + "</span><b>" + b.nome + "</b></span>";
     }).join("") + "</div>";
   }
@@ -567,19 +592,19 @@
   /* ================= Telas ================= */
 
   function slideResumo() {
-    var s = cabecalho(null, "Hoje na cidade", D.cidade + " · " + nomeDia(0));
+    var s = cabecalho(null, T("Hoje na cidade"), D.cidade + " · " + nomeDia(0));
     porRisco().forEach(function (id, k) {
       var n = nivel(id);
       s += '<div class="cartao-risco n' + n + ' in"' + atraso(k + 1) + '><div class="cr-cena">' + CENAS[id](n) + '<span class="cr-nome">' + ic(RISCOS[id].icone) + RISCOS[id].titulo + "</span>" +
-        (n >= 3 ? '<span class="cr-alerta">' + ic("sirene") + "Alerta</span>" : "") + "</div>" +
+        (n >= 3 ? '<span class="cr-alerta">' + ic("sirene") + T("Alerta") + "</span>" : "") + "</div>" +
         '<div class="cr-corpo"><div class="cr-nivel">' + semaforo(n, "h") + chip(n) + '<span class="cr-sig">' + NIVEIS[n].sig + "</span></div>" + veredito(n, "mini") + "</div></div>";
     });
     var a = eventos()[0];
     if (a) {
       s += '<div class="resumo-alerta n' + a.nivel + ' in"' + atraso(4) + ">" + ic(a.estado === "agora" ? "sirene" : "relogio") +
-        "<div><small>" + ESTADOS[a.estado].nome + "</small><b>" + RISCOS[a.id].titulo + " · " + (a.horas === 0 ? "agora" : textoHoras(a.horas).toLowerCase() + " (" + a.prob + "%)") + "</b></div>" + ic(RISCOS[a.id].icone) + "</div>";
+        "<div><small>" + ESTADOS[a.estado].nome + "</small><b>" + RISCOS[a.id].titulo + " · " + (a.horas === 0 ? T("agora") : textoHoras(a.horas).toLowerCase() + " (" + a.prob + "%)") + "</b></div>" + ic(RISCOS[a.id].icone) + "</div>";
     } else {
-      s += '<div class="resumo-alerta n1 in"' + atraso(4) + ">" + ic("n1") + "<div><small>Previsão</small><b>Sem risco nas próximas horas e amanhã</b></div></div>";
+      s += '<div class="resumo-alerta n1 in"' + atraso(4) + ">" + ic("n1") + "<div><small>" + T("Previsão") + "</small><b>" + T("Sem risco nas próximas horas e amanhã") + "</b></div></div>";
     }
     return s;
   }
@@ -588,7 +613,7 @@
     var d = D[id];
     var n = d.nivel;
     var ind = d.indicadores.map(function (t) {
-      return '<div class="vidro">' + ic(t.icone) + "<div><b>" + num(t.valor, t.dec, t.unidade) + "</b><span>" + t.rotulo + "</span></div></div>";
+      return '<div class="vidro">' + ic(t.icone) + "<div><b>" + num(t.valor, t.dec, t.unidade) + "</b><span>" + T(t.rotulo) + "</span></div></div>";
     }).join("");
     return '<div class="heroi in"' + atraso(0) + ">" + CENAS[id](n) + (n >= 3 ? '<div class="hero-perigo n' + n + '"></div>' : "") + '<div class="hero-sem">' + semaforo(n, "v") + "</div>" +
       '<div class="indicadores">' + ind + "</div>" +
@@ -600,28 +625,28 @@
     var d = D[id];
     var n = d.nivel;
     var seg = d.pontoSeguro;
-    var bairro = D.voce.bairro ? "Seu bairro: " + D.voce.bairro : "Seu bairro";
-    var s = cabecalho(RISCOS[id].icone, "Mapa · " + RISCOS[id].titulo, bairro + (n >= 2 ? " · caminho seguro" : " e vizinhos"), semaforo(n, "h"));
+    var bairro = D.voce.bairro ? T("Seu bairro: {b}", { b: D.voce.bairro }) : T("Seu bairro");
+    var s = cabecalho(RISCOS[id].icone, T("Mapa · {r}", { r: RISCOS[id].titulo }), bairro + (n >= 2 ? T(" · caminho seguro") : T(" e vizinhos")), semaforo(n, "h"));
     s += '<div class="mapa-card in"' + atraso(1) + '><div class="mapa-leaflet"></div></div>' + legenda();
-    s += '<div class="rota-cards in"' + atraso(8) + '><div class="rc voce"><span class="rc-ic">' + ic("voce") + "</span><div><small>Você está aqui</small><b>" + D.voce.nome + "</b></div></div>";
+    s += '<div class="rota-cards in"' + atraso(8) + '><div class="rc voce"><span class="rc-ic">' + ic("voce") + "</span><div><small>" + T("Você está aqui") + "</small><b>" + lugar(D.voce.nome) + "</b></div></div>";
     if (temDestino(id)) {
       var t = destino(seg);
       s += '<span class="rc-seta">' + ic("seta") + ic("seta") + ic("seta") + "</span>" +
-        '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic(t.icone) + "</span><div><small>" + (n >= 3 ? "Vá agora para" : "Se precisar sair") + " · " + t.rotulo +
-        "</small><b>" + seg.nome + '</b></div><span class="min">' + ic("correr") + '<span class="min-val">' + seg.minutos + "</span> min</span></div>";
+        '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic(t.icone) + "</span><div><small>" + (n >= 3 ? T("Vá agora para") : T("Se precisar sair")) + " · " + t.rotulo +
+        "</small><b>" + lugar(seg.nome) + '</b></div><span class="min">' + ic("correr") + '<span class="min-val">' + seg.minutos + "</span> min</span></div>";
     } else if (n >= 2) {
-      s += '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic("telefone") + "</span><div><small>Para onde ir</small><b>Ligue 199 · Defesa Civil</b></div></div>";
+      s += '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic("telefone") + "</span><div><small>" + T("Para onde ir") + "</small><b>" + T("Ligue 199 · Defesa Civil") + "</b></div></div>";
     } else {
-      s += '<div class="rc tranquilo"><span class="rc-ic">' + ic("casaok") + "</span><div><small>Tudo tranquilo</small><b>Não precisa sair de casa</b></div></div>";
+      s += '<div class="rc tranquilo"><span class="rc-ic">' + ic("casaok") + "</span><div><small>" + T("Tudo tranquilo") + "</small><b>" + T("Não precisa sair de casa") + "</b></div></div>";
     }
     return s + "</div>";
   }
 
   function slideProximas() {
-    var s = cabecalho("relogio", "Próximas horas", "O que acontece agora e o que está chegando");
+    var s = cabecalho("relogio", T("Próximas horas"), T("O que acontece agora e o que está chegando"));
     s += '<div class="tabela compacta in"' + atraso(1) + '><div class="tab-linha"><span></span>' + D.horizonte.map(function (h, k) {
-      return '<span class="tab-dia' + (k === 0 ? " hoje" : "") + '">' + h.rotulo + "</span>";
-    }).join("") + '</div><div class="tab-linha chuva-linha"><span class="tab-risco">' + ic("chuva") + "Chuva</span>";
+      return '<span class="tab-dia' + (k === 0 ? " hoje" : "") + '">' + T(h.rotulo) + "</span>";
+    }).join("") + '</div><div class="tab-linha chuva-linha"><span class="tab-risco">' + ic("chuva") + T("Chuva") + "</span>";
     D.horizonte.forEach(function (h) {
       s += '<div class="chuva-cel"><span class="clima">' + ic(clima(h.chuva)) + '</span><div class="barra"><i style="--h:' + Math.min(100, (h.chuva / 80) * 100).toFixed(0) +
         '%"></i></div><b>' + h.chuva + (h.horas >= 24 ? " mm" : " mm/h") + "</b></div>";
@@ -630,10 +655,10 @@
     ORDEM.forEach(function (id) {
       s += '<div class="tab-linha"><span class="tab-risco">' + ic(RISCOS[id].icone) + RISCOS[id].curto + "</span>" + D.horizonte.map(function (h) {
         var x = h[id];
-        return '<span class="tab-cel hc n' + x.nivel + (x.prob < 70 && h.horas > 0 ? " possivel" : "") + '">' + ic("n" + x.nivel) + '<b class="prob">' + (h.horas === 0 ? "agora" : x.prob + "%") + "</b></span>";
+        return '<span class="tab-cel hc n' + x.nivel + (x.prob < 70 && h.horas > 0 ? " possivel" : "") + '">' + ic("n" + x.nivel) + '<b class="prob">' + (h.horas === 0 ? T("agora") : x.prob + "%") + "</b></span>";
       }).join("") + "</div>";
     });
-    s += '<div class="legenda-prob"><span class="lp certo"></span>Vai acontecer<span class="lp possivel"></span>Pode acontecer</div></div>';
+    s += '<div class="legenda-prob"><span class="lp certo"></span>' + T("Vai acontecer") + '<span class="lp possivel"></span>' + T("Pode acontecer") + "</div></div>";
     var ev = eventos().slice(0, 6);
     s += '<div class="eventos' + (ev.length > 4 ? " denso" : "") + '">';
     ev.forEach(function (e, k) {
@@ -645,7 +670,7 @@
         '<div class="ev-fazer">' + ic(f[0]) + "<p>" + f[1] + "</p></div></div></div></div>";
     });
     if (!ev.length) {
-      s += '<div class="evento n1 in"' + atraso(3) + '><div class="ev-quando">' + ic("n1") + '<b>Tudo bem</b></div><div class="ev-corpo"><div class="ev-topo"><b>Sem perigo previsto nas próximas horas</b></div></div></div>';
+      s += '<div class="evento n1 in"' + atraso(3) + '><div class="ev-quando">' + ic("n1") + "<b>" + T("Tudo bem") + '</b></div><div class="ev-corpo"><div class="ev-topo"><b>' + T("Sem perigo previsto nas próximas horas") + "</b></div></div></div>";
     }
     return s + "</div>";
   }
@@ -655,10 +680,10 @@
   }
 
   function slidePrevisao() {
-    var s = cabecalho("calendario", "Próximos dias", "Prepare-se antes do perigo chegar");
+    var s = cabecalho("calendario", T("Próximos dias"), T("Prepare-se antes do perigo chegar"));
     s += '<div class="tabela in"' + atraso(1) + '><div class="tab-linha"><span></span>';
     D.previsao.forEach(function (_, k) { s += '<span class="tab-dia' + (k === 0 ? " hoje" : "") + '">' + nomeDia(k) + "</span>"; });
-    s += '</div><div class="tab-linha chuva-linha"><span class="tab-risco">' + ic("chuva") + "Chuva</span>";
+    s += '</div><div class="tab-linha chuva-linha"><span class="tab-risco">' + ic("chuva") + T("Chuva") + "</span>";
     D.previsao.forEach(function (dia) {
       s += '<div class="chuva-cel"><span class="clima">' + ic(clima(dia.chuva)) + '</span><div class="barra"><i style="--h:' + Math.min(100, (dia.chuva / 80) * 100).toFixed(0) +
         '%"></i></div><b>' + dia.chuva + " mm</b></div>";
@@ -677,23 +702,23 @@
         '<div class="alerta-fazer">' + ic(p[0]) + "<p>" + p[1] + "</p></div></div></div>";
     });
     if (!lista.length) {
-      s += '<div class="alerta n1 in"' + atraso(3) + '><div class="quando">' + ic("n1") + "<b>Tudo bem</b></div><div class=\"alerta-o-que\"><div><b>Sem alertas nos próximos dias</b></div></div></div>";
+      s += '<div class="alerta n1 in"' + atraso(3) + '><div class="quando">' + ic("n1") + "<b>" + T("Tudo bem") + "</b></div><div class=\"alerta-o-que\"><div><b>" + T("Sem alertas nos próximos dias") + "</b></div></div></div>";
     }
     return s + "</div>";
   }
 
   function slideKit() {
-    var s = cabecalho("mochila", "Tenha sempre pronto", "Uma mochila para sair rápido");
+    var s = cabecalho("mochila", T("Tenha sempre pronto"), T("Uma mochila para sair rápido"));
     s += '<div class="kit">' + KIT.map(function (k, i) {
       return '<div class="kit-item in"' + atraso(i + 1) + '><span class="kit-ic">' + ic(k[0]) + "</span><b>" + k[1] + "</b></div>";
     }).join("") + "</div>";
-    return s + '<div class="ajude in"' + atraso(8) + ">" + ic("idoso") + ic("familia") + "<p>Ajude crianças, idosos e quem tem dificuldade para andar</p>" + ic("coracao") + "</div>";
+    return s + '<div class="ajude in"' + atraso(8) + ">" + ic("idoso") + ic("familia") + "<p>" + T("Ajude crianças, idosos e quem tem dificuldade para andar") + "</p>" + ic("coracao") + "</div>";
   }
 
   function slideAjuda() {
-    var s = cabecalho("telefone", "Pedir ajuda", "Ligue de graça, de qualquer telefone");
+    var s = cabecalho("telefone", T("Pedir ajuda"), T("Ligue de graça, de qualquer telefone"));
     s += '<div class="tels">' + D.telefones.map(function (t, i) {
-      return '<div class="tel in"' + atraso(i + 1) + '><span class="tel-ic">' + ic(t.icone) + '</span><div class="tel-meio"><b>' + t.nome + '</b><div class="tel-usos">' +
+      return '<div class="tel in"' + atraso(i + 1) + '><span class="tel-ic">' + ic(t.icone) + '</span><div class="tel-meio"><b>' + T(t.nome) + '</b><div class="tel-usos">' +
         t.usos.map(function (u) { return ic(u); }).join("") + '</div></div><span class="tel-num">' + t.numero + "</span></div>";
     }).join("") + "</div>";
     return s;
@@ -734,7 +759,7 @@
   function textoItem(it) {
     var n;
     if (it.tipo === "resumo") {
-      return "Hoje na cidade. " + porRisco().map(function (id) { return RISCOS[id].titulo + ": " + NIVEIS[nivel(id)].nome + ". " + VEREDITO[nivel(id)].titulo + ". " + VEREDITO[nivel(id)].sub; }).join(". ") + ".";
+      return T("Hoje na cidade") + ". " + porRisco().map(function (id) { return RISCOS[id].titulo + ": " + NIVEIS[nivel(id)].nome + ". " + VEREDITO[nivel(id)].titulo + ". " + VEREDITO[nivel(id)].sub; }).join(". ") + ".";
     }
     if (it.tipo === "risco") {
       n = nivel(it.id);
@@ -742,21 +767,22 @@
     }
     if (it.tipo === "mapa") {
       var seg = D[it.id].pontoSeguro;
-      var onde = D.voce.bairro ? "Você está no bairro " + D.voce.bairro : "Você está na " + D.voce.nome;
-      if (!temDestino(it.id)) return "Mapa de " + RISCOS[it.id].titulo + ". " + onde + ". " + (nivel(it.id) >= 2 ? "Ligue 199 para saber para onde ir." : "Não precisa sair de casa.");
-      return "Mapa de " + RISCOS[it.id].titulo + ". " + onde + ". " + (nivel(it.id) >= 3 ? "Vá agora para " : "Se precisar sair, vá para ") +
-        destino(seg).rotulo + ": " + seg.nome + ".";
+      var onde = D.voce.bairro ? T("Você está no bairro {b}", { b: D.voce.bairro }) : T("Você está na {n}", { n: lugar(D.voce.nome) });
+      var mapaDe = T("Mapa de {r}", { r: RISCOS[it.id].titulo });
+      if (!temDestino(it.id)) return mapaDe + ". " + onde + ". " + (nivel(it.id) >= 2 ? T("Ligue 199 para saber para onde ir.") : T("Não precisa sair de casa."));
+      return mapaDe + ". " + onde + ". " + (nivel(it.id) >= 3 ? T("Vá agora para ") : T("Se precisar sair, vá para ")) +
+        destino(seg).rotulo + ": " + lugar(seg.nome) + ".";
     }
     if (it.tipo === "proximas") {
       var ev = eventos();
-      return "Próximas horas. " + (ev.length ? ev.map(function (e) { return textoHoras(e.horas) + ": " + RISCOS[e.id].titulo + ", " + NIVEIS[e.nivel].nome + ". " + ESTADOS[e.estado].nome + (e.horas > 0 ? ", " + e.prob + " por cento" : ""); }).join(". ") : "Sem perigo previsto.") + ".";
+      return T("Próximas horas") + ". " + (ev.length ? ev.map(function (e) { return textoHoras(e.horas) + ": " + RISCOS[e.id].titulo + ", " + NIVEIS[e.nivel].nome + ". " + ESTADOS[e.estado].nome + (e.horas > 0 ? ", " + e.prob + T(" por cento") : ""); }).join(". ") : T("Sem perigo previsto.")) + ".";
     }
     if (it.tipo === "previsao") {
       var a = alertasPreventivos();
-      return "Próximos dias. " + (a.length ? a.map(function (x) { return quando(x.dia) + ": " + RISCOS[x.id].titulo + ", " + NIVEIS[x.nivel].nome + ". " + RISCOS[x.id].prevenir[1]; }).join(". ") : "Sem alertas.") + ".";
+      return T("Próximos dias") + ". " + (a.length ? a.map(function (x) { return quando(x.dia) + ": " + RISCOS[x.id].titulo + ", " + NIVEIS[x.nivel].nome + ". " + RISCOS[x.id].prevenir[1]; }).join(". ") : T("Sem alertas.")) + ".";
     }
-    if (it.tipo === "kit") return "Tenha sempre pronto: " + KIT.map(function (k) { return k[1]; }).join(", ") + ". Ajude crianças, idosos e quem tem dificuldade para andar.";
-    return "Pedir ajuda. " + D.telefones.map(function (t) { return t.nome + ", " + t.numero.split("").join(" "); }).join(". ") + ".";
+    if (it.tipo === "kit") return T("Tenha sempre pronto: ") + KIT.map(function (k) { return k[1]; }).join(", ") + ". " + T("Ajude crianças, idosos e quem tem dificuldade para andar") + ".";
+    return T("Pedir ajuda") + ". " + D.telefones.map(function (t) { return T(t.nome) + ", " + t.numero.split("").join(" "); }).join(". ") + ".";
   }
 
   // Voz só em atenção, perigo ou extremo: com tudo tranquilo o totem fica em silêncio
@@ -771,7 +797,7 @@
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(t);
-    u.lang = "pt-BR";
+    u.lang = LOCALE;
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
   }
@@ -807,7 +833,8 @@
         (function passo(t) {
           var p = Math.min(1, Math.max(0, t - t0) / 1600);
           p = 1 - Math.pow(1 - p, 3);
-          el.textContent = (alvo * p).toFixed(dec).replace(".", ",");
+          var texto = (alvo * p).toFixed(dec);
+          el.textContent = INGLES ? texto : texto.replace(".", ",");
           if (p < 1) requestAnimationFrame(passo);
         })(t0);
       }, 700);
@@ -821,30 +848,37 @@
 
   function montarTela() {
     var maior = maxNivel();
-    var dicas = [["telefone", "Emergência: " + D.telefones.map(function (t) { return t.nome + " " + t.numero; }).join(" · ")]].concat(DICAS).map(function (t) { return "<span>" + ic(t[0]) + t[1] + "</span>"; }).join("");
+    var dicas = [["telefone", T("Emergência: ") + D.telefones.map(function (t) { return T(t.nome) + " " + t.numero; }).join(" · ")]].concat(DICAS).map(function (t) { return "<span>" + ic(t[0]) + t[1] + "</span>"; }).join("");
     app.className = "stage";
     app.setAttribute("data-max", maior);
     app.setAttribute("data-nivel", 0);
     app.innerHTML =
       '<div class="farol e"></div><div class="farol d"></div>' +
       '<header class="topo"><div class="logo"><span class="logo-img"><img src="logo.svg" alt="FRAPC by Cosmos"></span>' +
-      "<div><b>Alerta " + D.cidade + "</b><small>" + (D.voce.bairro ? "Bairro " + D.voce.bairro : "Deslizamento e alagamento") + "</small></div></div>" +
+      "<div><b>" + T("Alerta {c}", { c: D.cidade }) + "</b><small>" + (D.voce.bairro ? T("Bairro {b}", { b: D.voce.bairro }) : T("Deslizamento e alagamento")) + "</small></div></div>" +
       '<div class="relogio"><b id="hora">--:--</b><small id="data"></small><small id="api-estado"></small></div></header>' +
       (maior >= 3 ? '<div class="faixa n' + maior + '"><span class="faixa-ic">' + ic("sirene") + '</span><div class="faixa-trilho"><div class="faixa-fita">' + textoFaixa() + textoFaixa() + '</div></div><span class="faixa-ic">' + ic("sirene") + "</span></div>" : "") +
       '<div class="progresso" id="progresso"></div><main class="palco" id="palco"></main>' +
-      '<footer class="ticker"><div class="ticker-sos">' + ic("telefone") + "<div><small>Emergência</small>" + D.telefones.map(function (t) { return t.numero; }).join(" · ") + "</div></div>" +
+      '<footer class="ticker"><div class="ticker-sos">' + ic("telefone") + "<div><small>" + T("Emergência") + "</small>" + D.telefones.map(function (t) { return t.numero; }).join(" · ") + "</div></div>" +
       '<div class="ticker-trilho"><div class="ticker-fita">' + dicas + dicas + "</div></div></footer>";
+  }
+
+  // "14/11/2026 · 08:00" da API vira "Nov 14, 2026 · 08:00" em inglês
+  function dataDados() {
+    var m = INGLES && /^(\d{2})\/(\d{2})\/(\d{4})(.*)$/.exec(D.atualizadoEm || "");
+    if (!m) return D.atualizadoEm;
+    return new Date(+m[3], +m[2] - 1, +m[1]).toLocaleDateString(LOCALE, { month: "short", day: "numeric", year: "numeric" }) + m[4];
   }
 
   function relogio() {
     var agora = new Date();
-    document.getElementById("hora").textContent = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    document.getElementById("data").textContent = agora.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+    document.getElementById("hora").textContent = agora.toLocaleTimeString(LOCALE, { hour: "2-digit", minute: "2-digit" });
+    document.getElementById("data").textContent = agora.toLocaleDateString(LOCALE, { weekday: "long", day: "numeric", month: "long" });
     var est = document.getElementById("api-estado");
     var vivo = aoVivo && apiOk === true;
     var s = segundosDesde(ultimaAtualizacao);
-    est.textContent = apiOk === false ? "SEM CONEXÃO COM A API (python api.py) · Dados: " + D.atualizadoEm :
-      vivo ? "● AO VIVO · atualizado há " + (s || 0) + " s" : "Dados: " + D.atualizadoEm;
+    est.textContent = apiOk === false ? T("SEM CONEXÃO COM A API (python api.py) · Dados: {d}", { d: dataDados() }) :
+      vivo ? T("● AO VIVO · atualizado há {s} s", { s: s || 0 }) : T("Dados: {d}", { d: dataDados() });
     est.classList.toggle("falha", apiOk === false);
     est.classList.toggle("vivo", vivo);
     atualizarBotaoAoVivo();
@@ -967,11 +1001,11 @@
 
   // Cenários de teste: nível previsto para agora, 1 h, 3 h, 5 h e amanhã (nos dois riscos)
   var CENARIOS = [
-    ["Exemplo", null],
-    ["Sem perigo", [1, 1, 1, 1, 1]],
-    ["Perigo em 1 hora", [1, 3, 4, 4, 4]],
-    ["Perigo em 4-5 horas", [1, 1, 2, 4, 3]],
-    ["Só amanhã", [1, 1, 1, 2, 4]]
+    [T("Exemplo"), null],
+    [T("Sem perigo"), [1, 1, 1, 1, 1]],
+    [T("Perigo em 1 hora"), [1, 3, 4, 4, 4]],
+    [T("Perigo em 4-5 horas"), [1, 1, 2, 4, 3]],
+    [T("Só amanhã"), [1, 1, 1, 2, 4]]
   ];
 
   function aplicarCenario(k) {
@@ -1001,18 +1035,18 @@
     mostrar(novo);
   }
 
-  var NOMES = { resumo: "Hoje na cidade", proximas: "Próximas horas", previsao: "Próximos dias", kit: "Mochila", ajuda: "Pedir ajuda" };
+  var NOMES = { resumo: T("Hoje na cidade"), proximas: T("Próximas horas"), previsao: T("Próximos dias"), kit: T("Mochila"), ajuda: T("Pedir ajuda") };
 
   function nomeItem(it) {
     if (it.tipo === "risco") return RISCOS[it.id].titulo;
-    if (it.tipo === "mapa") return "Mapa · " + RISCOS[it.id].titulo;
+    if (it.tipo === "mapa") return T("Mapa · {r}", { r: RISCOS[it.id].titulo });
     return NOMES[it.tipo];
   }
 
   function atualizarPainel() {
     var p = document.getElementById("teste");
     if (!p) return;
-    document.getElementById("t-pausa").innerHTML = ic(pausado ? "play" : "pausa") + (pausado ? "Continuar" : "Pausar");
+    document.getElementById("t-pausa").innerHTML = ic(pausado ? "play" : "pausa") + (pausado ? T("Continuar") : T("Pausar"));
     document.getElementById("t-lista").innerHTML = lista.map(function (it, k) {
       return '<button type="button" data-i="' + k + '"' + (k === indice ? ' class="ativa"' : "") + "><span>" + (k + 1) + "</span>" + nomeItem(it) + "</button>";
     }).join("");
@@ -1025,7 +1059,7 @@
 
   var LOCAL_CHAVE = "totem.local";
   var LOCAL_PADRAO = { lat: -3.1336, lng: -60.0233, nome: null };
-  var CHUVAS_TESTE = [[1, "Real (agora)"], [4, "Forte (x4)"], [8, "Muito forte (x8)"], [15, "Extrema (x15)"]];
+  var CHUVAS_TESTE = [[1, T("Real (agora)")], [4, T("Forte (x4)")], [8, T("Muito forte (x8)")], [15, T("Extrema (x15)")]];
   var fatorChuva = 1;
   var miniMapa = null;
   var miniMarcador = null;
@@ -1058,7 +1092,7 @@
 
   function recarregarDaApi() {
     var info = document.getElementById("t-local");
-    if (info) info.textContent = "Buscando dados do local...";
+    if (info) info.textContent = T("Buscando dados do local...");
     if (miniMarcador) miniMarcador.setLatLng([localTotem().lat, localTotem().lng]);
     carregarDados().then(function (ok) {
       apiOk = ok;
@@ -1070,12 +1104,17 @@
     });
   }
 
+  // Fonte da chuva vem da API com trechos em português entre parênteses
+  function traduzirFonte(f) {
+    return INGLES ? f.replace(/\([^)]*\)/g, function (p) { return T(p); }) : f;
+  }
+
   function atualizarMiniMapa(ok) {
     var info = document.getElementById("t-local");
     if (info) {
-      info.innerHTML = ok === false ? "Não foi possível buscar este local na API." :
-        "<b>" + (D.voce.bairro ? "Bairro " + D.voce.bairro : D.voce.nome) + "</b><br>" + D.voce.lat.toFixed(5) + ", " + D.voce.lng.toFixed(5) +
-        (D.meta && D.meta.fonte_chuva ? "<br><small>Chuva: " + D.meta.fonte_chuva + "</small>" : "");
+      info.innerHTML = ok === false ? T("Não foi possível buscar este local na API.") :
+        "<b>" + (D.voce.bairro ? T("Bairro {b}", { b: D.voce.bairro }) : lugar(D.voce.nome)) + "</b><br>" + D.voce.lat.toFixed(5) + ", " + D.voce.lng.toFixed(5) +
+        (D.meta && D.meta.fonte_chuva ? "<br><small>" + T("Chuva: {f}", { f: traduzirFonte(D.meta.fonte_chuva) }) + "</small>" : "");
     }
     if (!miniMapa) return;
     var l = localTotem();
@@ -1114,12 +1153,12 @@
 
   function htmlPainelLocal() {
     if (!apiBase || !apiTudo) {
-      return "<h3>Localização do totem</h3><p>Ligue a API (python api.py) para escolher a localização em Manaus.</p>";
+      return "<h3>" + T("Localização do totem") + "</h3><p>" + T("Ligue a API (python api.py) para escolher a localização em Manaus.") + "</p>";
     }
-    return "<h3>Localização do totem</h3><p>Clique no mapa ou escolha um bairro de Manaus</p>" +
-      '<div id="t-mapa"></div><select id="t-bairro" aria-label="Bairro"><option value="">Ir para um bairro...</option></select>' +
-      '<p id="t-local"></p><button type="button" data-t="local-padrao" class="t-largo">Voltar ao local padrão</button>' +
-      '<h3>Chuva (simulação no modelo)</h3><select id="t-chuva" aria-label="Chuva">' + CHUVAS_TESTE.map(function (c) {
+    return "<h3>" + T("Localização do totem") + "</h3><p>" + T("Clique no mapa ou escolha um bairro de Manaus") + "</p>" +
+      '<div id="t-mapa"></div><select id="t-bairro" aria-label="' + T("Bairro") + '"><option value="">' + T("Ir para um bairro...") + "</option></select>" +
+      '<p id="t-local"></p><button type="button" data-t="local-padrao" class="t-largo">' + T("Voltar ao local padrão") + "</button>" +
+      "<h3>" + T("Chuva (simulação no modelo)") + '</h3><select id="t-chuva" aria-label="' + T("Chuva") + '">' + CHUVAS_TESTE.map(function (c) {
         return '<option value="' + c[0] + '"' + (c[0] === fatorChuva ? " selected" : "") + ">" + c[1] + "</option>";
       }).join("") + "</select>";
   }
@@ -1128,11 +1167,13 @@
     document.body.classList.add("manual-ativo");
     var p = document.createElement("aside");
     p.id = "teste";
-    var s = "<h2>Teste</h2><p>Controles fora da tela do totem</p>" +
+    var s = "<h2>" + T("Teste") + "</h2><p>" + T("Controles fora da tela do totem") + "</p>" +
+      '<div class="t-lingua" role="group" aria-label="' + T("Idioma") + '"><button type="button" data-lingua="pt" aria-pressed="' + !INGLES + '">PT-BR</button>' +
+      '<button type="button" data-lingua="en" aria-pressed="' + INGLES + '">English</button></div>' +
       (apiBase ? '<button type="button" data-t="aovivo" id="t-aovivo" class="t-aovivo"></button>' : "") +
-      htmlPainelLocal() + "<h3>Telas</h3>" +
-      '<div class="t-nav"><button type="button" data-t="ant" class="vira" aria-label="Anterior">' + ic("seta") + '</button><button type="button" data-t="pausa" id="t-pausa"></button>' +
-      '<button type="button" data-t="prox" aria-label="Próxima">' + ic("seta") + '</button></div><div id="t-lista"></div>';
+      htmlPainelLocal() + "<h3>" + T("Telas") + "</h3>" +
+      '<div class="t-nav"><button type="button" data-t="ant" class="vira" aria-label="' + T("Anterior") + '">' + ic("seta") + '</button><button type="button" data-t="pausa" id="t-pausa"></button>' +
+      '<button type="button" data-t="prox" aria-label="' + T("Próxima") + '">' + ic("seta") + '</button></div><div id="t-lista"></div>';
     ORDEM.forEach(function (id) {
       s += "<h3>" + RISCOS[id].titulo + '</h3><div class="t-niveis">';
       for (var n = 1; n <= 4; n++) {
@@ -1140,10 +1181,11 @@
       }
       s += "</div>";
     });
-    s += "<h3>Previsão</h3><div class=\"t-cenarios\">" + CENARIOS.map(function (c, k) {
+    s += "<h3>" + T("Previsão") + "</h3><div class=\"t-cenarios\">" + CENARIOS.map(function (c, k) {
       return '<button type="button" data-cenario="' + k + '">' + c[0] + "</button>";
     }).join("") + "</div>";
-    s += '<h3>Som</h3><label><input type="checkbox" id="t-voz"' + (VOZ ? " checked" : "") + '> Voz</label><label><input type="checkbox" id="t-som"' + (SOM ? " checked" : "") + "> Sinal sonoro</label>" + (apiBase ? '<h3>API</h3><label><input type="checkbox" id="t-api" checked> Atualizar da API</label>' : "");
+    s += "<h3>" + T("Som") + '</h3><label><input type="checkbox" id="t-voz"' + (VOZ ? " checked" : "") + "> " + T("Voz") + '</label><label><input type="checkbox" id="t-som"' + (SOM ? " checked" : "") + "> " + T("Sinal sonoro") + "</label>" +
+      (apiBase ? '<h3>API</h3><label><input type="checkbox" id="t-api" checked> ' + T("Atualizar da API") + "</label>" : "");
     p.innerHTML = s;
     document.body.appendChild(p);
     iniciarMiniMapa();
@@ -1160,7 +1202,9 @@
     p.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b) return;
-      if (b.hasAttribute("data-cenario")) {
+      if (b.hasAttribute("data-lingua")) {
+        trocarLinguaTotem(b.getAttribute("data-lingua"));
+      } else if (b.hasAttribute("data-cenario")) {
         congelarParaTeste();
         aplicarCenario(parseInt(b.getAttribute("data-cenario"), 10));
         reconstruir();
@@ -1198,6 +1242,15 @@
         recarregarDaApi();
       }
     });
+  }
+
+  // Troca o idioma recarregando com ?lang= (todo o texto, a voz e as datas mudam juntos)
+  function trocarLinguaTotem(l) {
+    if (l === LINGUA) return;
+    try { localStorage.setItem(LINGUA_CHAVE, l); } catch (e) { /* sem localStorage */ }
+    var q = new URLSearchParams(location.search);
+    q.set("lang", l);
+    location.search = q.toString();
   }
 
   function ligarNavegacaoManual() {
@@ -1466,8 +1519,8 @@
     var s = segundosDesde(ultimaAtualizacao);
     b.classList.toggle("ligado", aoVivo);
     b.setAttribute("aria-pressed", aoVivo ? "true" : "false");
-    b.innerHTML = '<span class="t-aovivo-luz"></span><span><b>' + (aoVivo ? "Tempo real ligado" : "Ligar tempo real") + "</b><small>" +
-      (aoVivo ? "Atualiza a cada " + (CFG.intervaloAoVivoSeg || 15) + " s" + (s !== null ? " · última há " + s + " s" : "") : "Hoje: atualiza a cada " + (CFG.intervaloSeg || 60) + " s") +
+    b.innerHTML = '<span class="t-aovivo-luz"></span><span><b>' + (aoVivo ? T("Tempo real ligado") : T("Ligar tempo real")) + "</b><small>" +
+      (aoVivo ? T("Atualiza a cada {n} s", { n: CFG.intervaloAoVivoSeg || 15 }) + (s !== null ? T(" · última há {s} s", { s: s }) : "") : T("Hoje: atualiza a cada {n} s", { n: CFG.intervaloSeg || 60 })) +
       "</small></span>";
   }
 
@@ -1535,12 +1588,12 @@
   }
 
   function abrir() {
-    mostrarCarregando("Carregando alertas...");
+    mostrarCarregando(T("Carregando alertas..."));
     forcarAtualizacao = aoVivoInicial();
     carregarDados().then(function (ok) {
       apiOk = apiBase ? ok : null;
       if (apiBase && !ok && CFG.exemploSeFalhar === false) {
-        mostrarCarregando("Sem conexão com o servidor de alertas.<br><small>Tentando de novo...</small>");
+        mostrarCarregando(T("Sem conexão com o servidor de alertas.") + "<br><small>" + T("Tentando de novo...") + "</small>");
         setTimeout(abrir, 15000);
         return;
       }

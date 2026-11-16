@@ -11,7 +11,6 @@ window.COSMOS_PT = {
   "nav.niveis": "Níveis",
   "nav.tec": "Tecnologia",
   "nav.docs": "Documentos",
-  "nav.totem": "Ver o totem",
 
   "hero.sobre": "NASA Space Apps · Manaus 2026 · 3°06′S 60°01′O",
   "hero.l1": "O barranco",
@@ -50,7 +49,9 @@ window.COSMOS_PT = {
 
   "totem.aside": "Demonstração do totem funcionando",
   "totem.iframe": "Totem Alerta Manaus funcionando (demonstração)",
-  "totem.nota": "",
+  "painel.link": "Painel ao vivo · dados reais e modo teste",
+  "nav.painel": "Painel ao vivo ↗",
+  "cta.painel": "Abrir o painel ao vivo ↗",
   "sim.grupo": "Simular nível de risco no totem",
   "sim.rotulo": "Simule a chuva",
   "nivel.1": "Tranquilo",

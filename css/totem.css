@@ -415,6 +415,9 @@ path.rota-real { animation: marcha .9s linear infinite; }
 #t-lista button span { width: 22px; color: #9fb0c8; font-size: 13px; }
 #t-lista button.ativa { background: #fff; color: #0c1a33; }
 #t-lista button.ativa span { color: #0c1a33; }
+.t-lingua { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 12px; padding: 4px; border-radius: 14px; background: #1b2c4d; }
+#teste .t-lingua button { justify-content: center; padding: 8px; font-size: 14px; background: transparent; }
+#teste .t-lingua button[aria-pressed="true"] { background: #fff; color: #0c1a33; }
 .t-niveis { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .t-cenarios { display: grid; gap: 4px; }
 .t-cenarios button { padding: 8px 10px; font-size: 15px; font-weight: 600; }

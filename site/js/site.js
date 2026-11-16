@@ -76,6 +76,22 @@
         b.setAttribute("aria-pressed", b.getAttribute("data-lingua") === lingua ? "true" : "false");
       });
     }
+    // Painel oficial e totem embutido abrem no mesmo idioma do site
+    Array.prototype.forEach.call(document.querySelectorAll("[data-painel]"), function (a) {
+      a.setAttribute("href", "../index.html?lang=" + lingua);
+    });
+    if (totem) {
+      var src = "../index.html?vitrine&lang=" + lingua;
+      if (totem.getAttribute("src") !== src) {
+        totem.setAttribute("src", src);
+        // O totem recarregado volta ao nível de exemplo (Perigo)
+        Array.prototype.forEach.call(document.querySelectorAll(".simulador button"), function (x) {
+          x.setAttribute("aria-pressed", x.getAttribute("data-nivel") === "3" ? "true" : "false");
+        });
+        nivelAtual = 3;
+        pintarBrilho(3);
+      }
+    }
   }
 
   var linguaPedida = (location.search.match(/[?&]lang=(pt|en)\b/) || [])[1];

@@ -35,7 +35,7 @@
       <button type="button" data-lingua="en" lang="en" aria-pressed="true" title="English">EN</button>
       <button type="button" data-lingua="pt" lang="pt-BR" aria-pressed="false" title="Português do Brasil">PT-BR</button>
     </div>
-    <a class="botao botao-pequeno" href="#como-funciona" data-i18n="nav.totem">See the kiosk</a>
+    <a class="botao botao-pequeno" href="../index.html?lang=en" target="_blank" rel="noopener" data-painel data-i18n="nav.painel">Live panel ↗</a>
   </header>
 
   <main id="conteudo">
@@ -115,11 +115,13 @@
 
       <aside class="palco-totem" data-i18n-attr="aria-label:totem.aside" aria-label="Live demo of the kiosk">
         <div class="totem-fixo">
-          <p class="totem-nota" data-i18n="totem.nota">Kiosk screen in Brazilian Portuguese, as on the street</p>
+          <a class="painel-link" href="../index.html?lang=en" target="_blank" rel="noopener" data-painel>
+            <span class="ponto-vivo" aria-hidden="true"></span><span data-i18n="painel.link">Live panel · real data &amp; test mode</span><span class="painel-seta" aria-hidden="true">↗</span>
+          </a>
           <div class="totem-inclina">
             <div class="totem-aparelho">
               <span class="totem-camera" aria-hidden="true"></span>
-              <iframe id="totem-demo" src="../index.html?vitrine" data-i18n-attr="title:totem.iframe" title="Alerta Manaus kiosk running (demo)" loading="eager"></iframe>
+              <iframe id="totem-demo" src="../index.html?vitrine&amp;lang=en" data-i18n-attr="title:totem.iframe" title="Alerta Manaus kiosk running (demo)" loading="eager"></iframe>
               <span class="totem-brilho" aria-hidden="true"></span>
             </div>
             <div class="totem-pe" aria-hidden="true"></div>
@@ -311,7 +313,8 @@
       <canvas class="malha" data-malha="clara" aria-hidden="true"></canvas>
       <h2 id="titulo-chamada" data-revela data-i18n="cta.titulo">A kiosk at every bus stop. <em>A warning before the mud.</em></h2>
       <div class="chamada-acoes" data-revela>
-        <a class="botao" href="#como-funciona" data-i18n="cta.totem">See the kiosk again</a>
+        <a class="botao" href="../index.html?lang=en" target="_blank" rel="noopener" data-painel data-i18n="cta.painel">Open the live panel ↗</a>
+        <a class="botao botao-fantasma" href="#como-funciona" data-i18n="cta.totem">See the kiosk again</a>
         <a class="botao botao-fantasma" href="https://github.com/Gridissss/FRAPC-by-COSMOS" target="_blank" rel="noopener" data-i18n="cta.github">Code on GitHub</a>
         <button type="button" class="botao botao-fantasma" data-abrir-docs data-i18n="cta.detalhes">More details</button>
       </div>
