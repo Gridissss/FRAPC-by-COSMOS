@@ -5,3 +5,5 @@
 !.env.example
 *.pem
 *.key
+# Copia das credenciais sem o ponto no nome
+env
