@@ -58,31 +58,6 @@ desktop.ini
 # Logs
 *.log
 
-# Dados brutos, processados e modelos (preservando estrutura de pastas via .gitkeep)
-dados_brutos/*
-!dados_brutos/.gitkeep
-!dados_brutos/sar/
-dados_brutos/sar/*
-!dados_brutos/sar/.gitkeep
-
-dados_processados/*
-!dados_processados/.gitkeep
-
-modelos/*
-!modelos/.gitkeep
-
-# Extensões de dados pesados e binários
-*.parquet
-*.tif
-*.tiff
-*.joblib
-*.pkl
-*.h5
-*.hdf5
-
-# Vídeo bruto do projeto (publicado no YouTube: https://www.youtube.com/watch?v=61hn_QcZrLA)
-*.mp4
-*.webm
-# Versões leves (~5 MB) que tocam dentro do site
-!site/assets/video-cosmos.mp4
-!site/assets/video-cosmos.webm
+# Dados e modelo vão para o GitHub. Só o dataset de treino fica de fora:
+# passa do limite de 100 MB do GitHub e é regerado pelo pipeline (scripts 01–04).
+dados_processados/dataset_treino.parquet
