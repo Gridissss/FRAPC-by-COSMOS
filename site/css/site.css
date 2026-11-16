@@ -79,14 +79,15 @@ p { margin: 0; }
   transform: translateY(105%);
   transition: transform .55s var(--suave-saida), border-radius .55s var(--suave-saida);
 }
+/* .botao.botao: o hover precisa vencer as cores definidas por seção (ex.: .chamada .botao-fantasma) */
 @media (hover: hover) {
-  .botao:hover::before { transform: translateY(0); border-radius: 0; }
-  .botao:hover { color: var(--texto-hover); border-color: var(--preenche); }
-  .botao:hover .botao-texto { transform: translateY(-1.5em); }
-  .botao:hover .icone-play { transform: translateX(3px) scale(1.15); }
+  .botao.botao:hover::before { transform: translateY(0); border-radius: 0; }
+  .botao.botao:hover { color: var(--texto-hover); border-color: var(--preenche); }
+  .botao.botao:hover .botao-texto { transform: translateY(-1.5em); }
+  .botao.botao:hover .icone-play { transform: translateX(3px) scale(1.15); }
 }
-.botao:focus-visible::before { transform: translateY(0); border-radius: 0; }
-.botao:focus-visible { color: var(--texto-hover); border-color: var(--preenche); }
+.botao.botao:focus-visible::before { transform: translateY(0); border-radius: 0; }
+.botao.botao:focus-visible { color: var(--texto-hover); border-color: var(--preenche); }
 .botao:active { transform: scale(.96); }
 /* Texto rola para cima: a sombra é a cópia que entra por baixo */
 .botao-rotulo { display: inline-block; overflow: hidden; line-height: 1.15; height: 1.15em; }
@@ -398,6 +399,12 @@ section { position: relative; }
   @keyframes preenche { to { background-size: 100% 100%; } }
 }
 
+/* ---------- Malhas interativas (a grade de 500 m que reage ao cursor) ---------- */
+.malha { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.malha-palco { position: sticky; top: 0; align-self: start; height: 100vh; grid-column: 1 / -1; grid-row: 1; }
+.video > :not(.malha), .tecnologia > :not(.malha), .chamada > :not(.malha) { position: relative; z-index: 1; }
+.chamada { overflow: hidden; }
+
 /* ---------- Cursor próprio (só com mouse) ---------- */
 .cursor-ativo, .cursor-ativo * { cursor: none !important; }
 .cursor { position: fixed; inset: 0; z-index: 400; pointer-events: none; opacity: 0; mix-blend-mode: difference; transition: opacity .3s; }
@@ -443,7 +450,7 @@ section { position: relative; }
   .hero { grid-row: 1; }
   .palco-totem { grid-column: 1; grid-row: 2; padding: 0 var(--margem); }
   .passos { grid-row: 3; }
-  .chuva { grid-row: 1 / 4; }
+  .chuva, .malha-palco { grid-row: 1 / 4; }
   .hero { min-height: auto; padding-bottom: 30px; }
   .passos { padding-bottom: 40px; }
   .passo { min-height: auto; padding: 36px 0; opacity: 1; }

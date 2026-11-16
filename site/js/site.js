@@ -402,6 +402,231 @@
 
   aoRolar();
 
+  /* ---------- Malhas interativas: a grade de 500 m vira um tecido que reage ao cursor ---------- */
+
+  var TEMAS_MALHA = {
+    escura: { base: "rgba(159, 176, 200, .09)", perto: [0, 170, 161], centro: [255, 154, 0], ponto: "255, 255, 255" },
+    clara: { base: "rgba(17, 24, 39, .07)", perto: [0, 118, 191], centro: [255, 154, 0], ponto: "17, 24, 39" }
+  };
+
+  function misturar(a, b, t) {
+    return [Math.round(a[0] + (b[0] - a[0]) * t), Math.round(a[1] + (b[1] - a[1]) * t), Math.round(a[2] + (b[2] - a[2]) * t)];
+  }
+
+  function criarMalha(tela, area) {
+    var tema = TEMAS_MALHA[tela.getAttribute("data-malha")] || TEMAS_MALHA.escura;
+    var ctx = tela.getContext("2d");
+    var PASSO = 46;
+    var RAIO = 190;
+    var colunas = 0, linhas = 0, larg = 0, alt = 0;
+    var pts = [];
+    var mouse = { x: -9999, y: -9999, vx: 0, vy: 0, ativo: false, ux: 0, uy: 0 };
+    var ondas = [];
+    var rodando = false;
+    var visivel = false;
+
+    function montar() {
+      var r = Math.min(window.devicePixelRatio || 1, 2);
+      larg = tela.clientWidth;
+      alt = tela.clientHeight;
+      tela.width = larg * r;
+      tela.height = alt * r;
+      ctx.setTransform(r, 0, 0, r, 0, 0);
+      colunas = Math.ceil(larg / PASSO) + 2;
+      linhas = Math.ceil(alt / PASSO) + 2;
+      pts = [];
+      var desloc = (larg - (colunas - 1) * PASSO) / 2;
+      for (var j = 0; j < linhas; j++) {
+        for (var i = 0; i < colunas; i++) {
+          pts.push({ rx: desloc + i * PASSO, ry: -PASSO + j * PASSO, ox: 0, oy: 0, vx: 0, vy: 0, brilho: 0 });
+        }
+      }
+      if (menosMovimento) desenhar(0);
+    }
+
+    function posicaoRelativa(e) {
+      var r = tela.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+
+    area.addEventListener("pointermove", function (e) {
+      var p = posicaoRelativa(e);
+      if (mouse.ativo) { mouse.vx = p.x - mouse.x; mouse.vy = p.y - mouse.y; }
+      mouse.x = p.x;
+      mouse.y = p.y;
+      if (!mouse.ativo) { mouse.ux = p.x; mouse.uy = p.y; }
+      mouse.ativo = true;
+    }, { passive: true });
+    area.addEventListener("pointerleave", function () { mouse.ativo = false; });
+    area.addEventListener("pointerdown", function (e) {
+      if (e.target.closest && e.target.closest("iframe, video")) return;
+      var p = posicaoRelativa(e);
+      ondas.push({ x: p.x, y: p.y, t0: performance.now() });
+      if (ondas.length > 4) ondas.shift();
+    });
+
+    function passo(agora) {
+      try {
+        avancar(agora);
+        desenhar(agora);
+      } catch (erro) {
+        // Um quadro com problema não pode parar a animação inteira
+        if (window.console) console.warn("malha:", erro);
+      }
+      if (rodando) requestAnimationFrame(passo);
+    }
+
+    function avancar(agora) {
+      // Mouse "suavizado" para o brilho não pular
+      mouse.ux += (mouse.x - mouse.ux) * .25;
+      mouse.uy += (mouse.y - mouse.uy) * .25;
+      mouse.vx *= .86;
+      mouse.vy *= .86;
+      ondas = ondas.filter(function (o) { return agora - o.t0 < 2200; });
+
+      for (var k = 0; k < pts.length; k++) {
+        var p = pts[k];
+        // Terreno "respirando" mesmo sem cursor
+        var tx = Math.sin(p.ry * .011 + agora * .0007) * 3;
+        var ty = Math.sin(p.rx * .009 + agora * .0011) * 4 + Math.cos(p.ry * .013 + agora * .0008) * 3;
+        var alvoBrilho = 0;
+
+        if (mouse.ativo) {
+          var dx = p.rx - mouse.ux, dy = p.ry - mouse.uy;
+          var d = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (d < RAIO) {
+            var f = 1 - d / RAIO;
+            var f2 = f * f;
+            // Empurra para fora e arrasta junto com o movimento do mouse (efeito tecido)
+            tx += dx / d * f2 * 38 + mouse.vx * f2 * 1.6;
+            ty += dy / d * f2 * 38 + mouse.vy * f2 * 1.6;
+            alvoBrilho = f;
+          }
+        }
+
+        // Onda de radar do clique
+        for (var w = 0; w < ondas.length; w++) {
+          var o = ondas[w];
+          var decorrido = Math.max(0, agora - o.t0);
+          var raioOnda = decorrido * .55;
+          var ex = p.rx - o.x, ey = p.ry - o.y;
+          var de = Math.sqrt(ex * ex + ey * ey) || 1;
+          var faixa = 1 - Math.abs(de - raioOnda) / 60;
+          if (faixa > 0) {
+            var forca = faixa * (1 - decorrido / 2200) * 2.2;
+            p.vx += ex / de * forca;
+            p.vy += ey / de * forca;
+            alvoBrilho = Math.max(alvoBrilho, faixa * .8);
+          }
+        }
+
+        // Mola com amortecimento: chega no alvo e balança um pouco
+        p.vx = (p.vx + (tx - p.ox) * .09) * .8;
+        p.vy = (p.vy + (ty - p.oy) * .09) * .8;
+        p.ox += p.vx;
+        p.oy += p.vy;
+        p.brilho += (alvoBrilho - p.brilho) * .12;
+      }
+    }
+
+    function ponto(i, j) { return pts[j * colunas + i]; }
+
+    function desenhar(agora) {
+      ctx.clearRect(0, 0, larg, alt);
+
+      // Brilho difuso sob o cursor
+      if (mouse.ativo && !menosMovimento) {
+        var g = ctx.createRadialGradient(mouse.ux, mouse.uy, 0, mouse.ux, mouse.uy, RAIO * 1.4);
+        g.addColorStop(0, "rgba(" + tema.centro.join(",") + ", .10)");
+        g.addColorStop(1, "rgba(" + tema.centro.join(",") + ", 0)");
+        ctx.fillStyle = g;
+        ctx.fillRect(mouse.ux - RAIO * 1.4, mouse.uy - RAIO * 1.4, RAIO * 2.8, RAIO * 2.8);
+      }
+
+      // Passada 1: a malha toda, fraca, num único traço
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = tema.base;
+      ctx.beginPath();
+      var i, j, a, b;
+      for (j = 0; j < linhas; j++) {
+        for (i = 0; i < colunas; i++) {
+          a = ponto(i, j);
+          if (i === 0) ctx.moveTo(a.rx + a.ox, a.ry + a.oy); else ctx.lineTo(a.rx + a.ox, a.ry + a.oy);
+        }
+      }
+      for (i = 0; i < colunas; i++) {
+        for (j = 0; j < linhas; j++) {
+          a = ponto(i, j);
+          if (j === 0) ctx.moveTo(a.rx + a.ox, a.ry + a.oy); else ctx.lineTo(a.rx + a.ox, a.ry + a.oy);
+        }
+      }
+      ctx.stroke();
+
+      // Passada 2: só os trechos acesos (perto do cursor ou na onda), coloridos
+      ctx.lineWidth = 1.4;
+      for (j = 0; j < linhas; j++) {
+        for (i = 0; i < colunas; i++) {
+          a = ponto(i, j);
+          if (a.brilho < .03) continue;
+          var vizinhos = [i + 1 < colunas ? ponto(i + 1, j) : null, j + 1 < linhas ? ponto(i, j + 1) : null];
+          for (var v = 0; v < 2; v++) {
+            b = vizinhos[v];
+            if (!b) continue;
+            var br = (a.brilho + b.brilho) / 2;
+            if (br < .03) continue;
+            var cor = misturar(tema.perto, tema.centro, Math.min(1, br * 1.3));
+            ctx.strokeStyle = "rgba(" + cor.join(",") + "," + (br * .85).toFixed(3) + ")";
+            ctx.beginPath();
+            ctx.moveTo(a.rx + a.ox, a.ry + a.oy);
+            ctx.lineTo(b.rx + b.ox, b.ry + b.oy);
+            ctx.stroke();
+          }
+          // Nós da grade acendem como pontos de medição
+          if (a.brilho > .2) {
+            ctx.fillStyle = "rgba(" + tema.ponto + "," + (a.brilho * .9).toFixed(3) + ")";
+            ctx.beginPath();
+            ctx.arc(a.rx + a.ox, a.ry + a.oy, 1 + a.brilho * 2.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      // Anéis das ondas de radar
+      for (var w = 0; w < ondas.length; w++) {
+        var o = ondas[w];
+        var decorrido = Math.max(0, agora - o.t0);
+        var idade = decorrido / 2200;
+        ctx.strokeStyle = "rgba(" + tema.perto.join(",") + "," + (.5 * (1 - idade)).toFixed(3) + ")";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(o.x, o.y, decorrido * .55, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    function ligar(sim) {
+      if (menosMovimento || sim === rodando) return;
+      rodando = sim;
+      if (sim) requestAnimationFrame(passo);
+    }
+
+    montar();
+    if ("ResizeObserver" in window) new ResizeObserver(montar).observe(tela);
+    else window.addEventListener("resize", montar);
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (itens) {
+        visivel = itens[0].isIntersecting;
+        ligar(visivel);
+      }).observe(area);
+    } else {
+      ligar(true);
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll("canvas.malha"), function (tela) {
+    criarMalha(tela, tela.closest(".palco, section") || tela.parentNode);
+  });
+
   /* ---------- Chuva no palco (mais forte quanto maior o nível simulado) ---------- */
 
   var tela = document.querySelector(".chuva");
@@ -464,13 +689,13 @@
   for (var k = 0; k < GOTAS_POR_NIVEL[nivelAtual]; k++) gotas.push(novaGota(false));
   window.addEventListener("resize", medir);
   var palcoVisivel = true;
+  // Sem checar document.hidden: o navegador já pausa requestAnimationFrame em abas escondidas
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(function (itens) {
       palcoVisivel = itens[0].isIntersecting;
-      ligar(palcoVisivel && !document.hidden);
+      ligar(palcoVisivel);
     }).observe(palco);
   } else {
     ligar(true);
   }
-  document.addEventListener("visibilitychange", function () { ligar(palcoVisivel && !document.hidden); });
 })();

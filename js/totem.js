@@ -804,7 +804,7 @@
       setTimeout(function () {
         var t0 = performance.now();
         (function passo(t) {
-          var p = Math.min(1, (t - t0) / 1600);
+          var p = Math.min(1, Math.max(0, t - t0) / 1600);
           p = 1 - Math.pow(1 - p, 3);
           el.textContent = (alvo * p).toFixed(dec).replace(".", ",");
           if (p < 1) requestAnimationFrame(passo);

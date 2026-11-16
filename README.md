@@ -455,6 +455,7 @@ Página de apresentação do Projeto Cosmos com o vídeo do projeto e o totem ro
   ```
 - **Abra por http** (recomendado): na raiz do projeto rode `python -m http.server 8080` e acesse **http://localhost:8080/site/**. Aberto direto do disco (`file://`), alguns navegadores — como o navegador embutido do VS Code — bloqueiam vídeo e o YouTube recusa o player embutido.
 - **Cursor:** com mouse, o site usa um cursor próprio (ponto + anel que segue com atraso, cresce sobre botões, mostra "Assistir"/"Abrir" no vídeo e nos PDFs e faz um respingo no clique). No celular e com "reduzir movimento" fica o cursor normal.
+- **Malhas interativas:** a abertura, o vídeo, a tecnologia e a chamada final têm uma grade em `<canvas>` que o cursor empurra e arrasta (física de mola), respira sozinha quando parada e solta uma onda de radar a cada clique. Cada malha só anima enquanto a seção está na tela.
 - **Ver mais detalhes / Documentos:** abre uma janela com os PDFs da raiz do projeto (`as pessoas que vivem em situações de periferia e ribeirinhos.pdf` — Storytelling Canvas — e `5w2h.pdf`), com capa, "Abrir PDF" e "Baixar".
 - Imagens ilustrativas ou geradas por IA aparecem com selo indicando isso.
 - Para publicar, suba a pasta do projeto inteira (o site usa `../index.html`, `../js`, `../css` e os PDFs da raiz).
