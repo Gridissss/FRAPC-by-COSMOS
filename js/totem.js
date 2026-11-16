@@ -7,15 +7,41 @@
   // Tempo de cada tela em segundos. Telas de risco = base + porNivel x nível (maior risco fica mais tempo).
   var TEMPO = { resumo: 14, proximas: 20, previsao: 18, kit: 14, ajuda: 12, risco: 8, mapa: 10, porNivel: 3 };
   var RECARREGAR_MIN = 10;
+  // ?vitrine: totem embutido no site de divulgação (sem painel, sem som, com dados de exemplo)
+  var VITRINE = /[?&]vitrine(=|&|$)/.test(location.search);
   // Navegação manual (setas, botões, toque e teclado). Temporária: ponha false na instalação final do totem.
-  var MANUAL = true;
+  var MANUAL = !VITRINE;
   // Voz e sinal sonoro: o Chrome do totem precisa iniciar com --autoplay-policy=no-user-gesture-required.
-  var VOZ = true;
-  var SOM = true;
+  var VOZ = !VITRINE;
+  var SOM = !VITRINE;
 
-  var TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  // Mapa estilo Google Earth: imagem de satélite (Esri World Imagery, sem chave) + ruas e nomes por cima
+  var TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  var TILES_RUAS = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}";
+  var TILES_NOMES = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+  var TILES_ATRIB = "Imagens © Esri, Maxar, Earthstar Geographics · © OpenStreetMap";
+  // Mapa: tempo na visão geral antes do zoom automático aproximar
+  var ZOOM_AUTO_MS = 3000;
   var ROTA_URL = "https://routing.openstreetmap.de/routed-foot/route/v1/foot/";
   var COR = { 1: "#16a34a", 2: "#facc15", 3: "#fb923c", 4: "#dc2626" };
+  // Limites de Manaus para o seletor de localização do painel de teste
+  var LIMITES_MANAUS = [[-3.25, -60.25], [-2.85, -59.75]];
+
+  // Para onde ir: hospital, bombeiros, Defesa Civil, ponto de encontro ou o bairro mais seguro
+  var DESTINOS = {
+    hospital: { rotulo: "Hospital", icone: "cruz" },
+    bombeiros: { rotulo: "Bombeiros", icone: "fogo" },
+    defesa_civil: { rotulo: "Defesa Civil", icone: "sirene" },
+    abrigo: { rotulo: "Ponto de encontro", icone: "seguro" },
+    area: { rotulo: "Área segura", icone: "seguro" },
+    area_menos_risco: { rotulo: "Área mais tranquila", icone: "seguro" },
+    bairro: { rotulo: "Área segura", icone: "seguro" },
+    ponto: { rotulo: "Ponto seguro", icone: "seguro" }
+  };
+
+  function destino(seg) {
+    return DESTINOS[seg && seg.tipo] || DESTINOS.ponto;
+  }
 
   var NIVEIS = {
     1: { nome: "Tranquilo", curto: "Tranquilo", sig: "Sem risco" },
@@ -339,7 +365,8 @@
   function pinBairro(b, n, k) {
     return L.divIcon({
       className: "pin-wrap", iconSize: [0, 0],
-      html: '<div class="pin n' + n + '"' + atraso(k) + '><span class="pin-halo"></span><span class="pin-c">' + ic("n" + n) + '</span><b class="pin-t">' + b.nome + "</b></div>"
+      html: '<div class="pin n' + n + (b.atual ? " atual" : "") + '"' + atraso(k) + '><span class="pin-halo"></span><span class="pin-c">' + ic("n" + n) + '</span><b class="pin-t">' +
+        (b.atual ? "Seu bairro · " : "") + b.nome + "</b></div>"
     });
   }
 
@@ -350,11 +377,18 @@
     });
   }
 
-  function pinSeguro() {
+  function pinSeguro(seg) {
+    var t = destino(seg);
     return L.divIcon({
       className: "pin-wrap", iconSize: [0, 0],
-      html: '<div class="pin-seguro"><span class="ps-c">' + ic("seguro") + '</span><b class="pin-t ps-t">Ponto seguro</b></div>'
+      html: '<div class="pin-seguro"><span class="ps-c">' + ic(t.icone) + '</span><b class="pin-t ps-t">' + t.rotulo + "</b></div>"
     });
+  }
+
+  function camadaSatelite(mapa) {
+    L.tileLayer(TILES, { maxZoom: 19, attribution: TILES_ATRIB }).addTo(mapa);
+    L.tileLayer(TILES_RUAS, { maxZoom: 19, opacity: 0.75 }).addTo(mapa);
+    L.tileLayer(TILES_NOMES, { maxZoom: 19 }).addTo(mapa);
   }
 
   function distancia(a, b) {
@@ -380,29 +414,78 @@
     return [fundo, linha, ponto];
   }
 
+  // Destino só aparece quando há o que fazer: em "tranquilo" ninguém precisa sair de casa
+  function temDestino(id) {
+    return nivel(id) >= 2 && !!D[id].pontoSeguro;
+  }
+
   function iniciarMapa(el, id) {
     if (!window.L) return;
     var d = D[id];
     var cont = el.querySelector(".mapa-leaflet");
     var limpar = [];
+    // Totem sem toque: o mapa não responde a dedo nem mouse, o zoom é automático
     var mapa = L.map(cont, {
       zoomControl: false, attributionControl: false, dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
       boxZoom: false, keyboard: false, touchZoom: false, tap: false, zoomSnap: 0, fadeAnimation: true
     });
-    L.tileLayer(TILES, { maxZoom: 19, attribution: "© OpenStreetMap" }).addTo(mapa);
+    camadaSatelite(mapa);
     L.control.attribution({ prefix: false, position: "bottomleft" }).addTo(mapa);
 
-    var pts = [[D.voce.lat, D.voce.lng], [d.pontoSeguro.lat, d.pontoSeguro.lng]];
+    var voce = [D.voce.lat, D.voce.lng];
+    var seg = temDestino(id) ? d.pontoSeguro : null;
+    var alvo = seg ? [seg.lat, seg.lng] : null;
+    // Polígonos precisam de uma vista definida antes de entrar no mapa
+    mapa.setView(voce, 14, { animate: false });
+    var geral = L.latLngBounds(alvo ? [voce, alvo] : [voce]);
+    var perto = L.latLngBounds(alvo ? [voce, alvo] : [voce]);
     D.bairros.forEach(function (b, k) {
       var n = b[id];
-      pts.push([b.lat, b.lng]);
-      L.circle([b.lat, b.lng], { radius: 200 + n * 90, color: COR[n], weight: n >= 3 ? 4 : 0, opacity: 0.7, fillColor: COR[n], fillOpacity: n >= 3 ? 0.34 : 0.22, interactive: false }).addTo(mapa);
-      L.marker([b.lat, b.lng], { icon: pinBairro(b, n, k), interactive: false, zIndexOffset: n * 100 }).addTo(mapa);
+      var area;
+      if (b.geometria) {
+        area = L.geoJSON(b.geometria, {
+          interactive: false,
+          style: b.atual
+            ? { color: "#fff", weight: 7, dashArray: "18 12", opacity: 1, fillColor: COR[n], fillOpacity: 0.32 }
+            : { color: COR[n], weight: n >= 3 ? 5 : 3, opacity: 0.95, fillColor: COR[n], fillOpacity: n >= 3 ? 0.4 : 0.24 }
+        }).addTo(mapa);
+        if (b.atual) area.bringToFront();
+      } else {
+        area = L.circle([b.lat, b.lng], { radius: 200 + n * 90, color: COR[n], weight: n >= 3 ? 4 : 0, opacity: 0.7, fillColor: COR[n], fillOpacity: n >= 3 ? 0.34 : 0.22, interactive: false }).addTo(mapa);
+      }
+      // Visão geral: bairro do totem inteiro + centro dos vizinhos (vizinhos grandes não afastam demais)
+      geral.extend(b.atual ? area.getBounds() : L.latLng(b.lat, b.lng));
+      // De perto: o caminho até o destino; sem destino, o próprio bairro
+      if (b.atual && !alvo) perto.extend(area.getBounds());
+      L.marker([b.lat, b.lng], { icon: pinBairro(b, n, k), interactive: false, zIndexOffset: n * 100 + (b.atual ? 500 : 0) }).addTo(mapa);
     });
-    L.marker([D.voce.lat, D.voce.lng], { icon: pinVoce(), interactive: false, zIndexOffset: 2000 }).addTo(mapa);
-    L.marker([d.pontoSeguro.lat, d.pontoSeguro.lng], { icon: pinSeguro(), interactive: false, zIndexOffset: 1000 }).addTo(mapa);
+    L.marker(voce, { icon: pinVoce(), interactive: false, zIndexOffset: 2000 }).addTo(mapa);
 
-    var direta = [[D.voce.lat, D.voce.lng], [d.pontoSeguro.lat, d.pontoSeguro.lng]];
+    if (seg) {
+      L.marker(alvo, { icon: pinSeguro(seg), interactive: false, zIndexOffset: 1000 }).addTo(mapa);
+      tracarRota(el, mapa, voce, alvo, limpar);
+    }
+
+    // Zoom automático: começa afastado (bairro, vizinhos e destino) e depois aproxima
+    var folga = L.point(150, 200);
+    mapa.fitBounds(geral, { padding: folga, animate: false });
+    var aproximar = setTimeout(function () {
+      mapa.invalidateSize();
+      if (alvo) mapa.flyToBounds(perto.pad(0.25), { padding: folga, duration: 2.5, maxZoom: 17 });
+      else mapa.flyTo(voce, Math.max(16, mapa.getBoundsZoom(perto, false, folga)), { duration: 2.5 });
+    }, ZOOM_AUTO_MS);
+
+    el._fim = function () {
+      clearTimeout(aproximar);
+      limpar.forEach(function (f) { f(); });
+      mapa.stop();
+      mapa.remove();
+    };
+  }
+
+  function tracarRota(el, mapa, voce, alvo, limpar) {
+    var direta = [voce, alvo];
+    var chave = direta.join(";");
     var camadas = [];
     function aplicar(coords) {
       camadas.forEach(function (c) { mapa.removeLayer(c); });
@@ -414,40 +497,27 @@
       var alvoMin = el.querySelector(".min-val");
       if (alvoMin) alvoMin.textContent = min;
     }
-    if (rotasCache[id]) {
-      aplicar(rotasCache[id].coords);
-      minutos(rotasCache[id].min);
-    } else {
-      aplicar(direta);
-      var ctrl = window.AbortController ? new AbortController() : null;
-      var abortar = setTimeout(function () { if (ctrl) ctrl.abort(); }, 7000);
-      fetch(ROTA_URL + D.voce.lng + "," + D.voce.lat + ";" + d.pontoSeguro.lng + "," + d.pontoSeguro.lat + "?overview=full&geometries=geojson", ctrl ? { signal: ctrl.signal } : {})
-        .then(function (r) { return r.json(); })
-        .then(function (j) {
-          clearTimeout(abortar);
-          var r = j.routes && j.routes[0];
-          if (!r) return;
-          var coords = r.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
-          rotasCache[id] = { coords: coords, min: Math.max(1, Math.round(r.duration / 60)) };
-          if (!el.isConnected) return;
-          aplicar(coords);
-          minutos(rotasCache[id].min);
-        })
-        .catch(function () { /* sem internet: mantém a linha direta */ });
+    if (rotasCache[chave]) {
+      aplicar(rotasCache[chave].coords);
+      minutos(rotasCache[chave].min);
+      return;
     }
-
-    var limites = L.latLngBounds(pts);
-    var z = mapa.getBoundsZoom(limites, false, L.point(150, 200));
-    mapa.setView(limites.getCenter(), z - 1.3, { animate: false });
-    setTimeout(function () {
-      mapa.invalidateSize();
-      mapa.flyTo(limites.getCenter(), mapa.getBoundsZoom(limites, false, L.point(150, 200)), { duration: 2.2 });
-    }, 1000);
-
-    el._fim = function () {
-      limpar.forEach(function (f) { f(); });
-      mapa.remove();
-    };
+    aplicar(direta);
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var abortar = setTimeout(function () { if (ctrl) ctrl.abort(); }, 7000);
+    fetch(ROTA_URL + voce[1] + "," + voce[0] + ";" + alvo[1] + "," + alvo[0] + "?overview=full&geometries=geojson", ctrl ? { signal: ctrl.signal } : {})
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        clearTimeout(abortar);
+        var r = j.routes && j.routes[0];
+        if (!r) return;
+        var coords = r.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+        rotasCache[chave] = { coords: coords, min: Math.max(1, Math.round(r.duration / 60)) };
+        if (!el.isConnected) return;
+        aplicar(coords);
+        minutos(rotasCache[chave].min);
+      })
+      .catch(function () { /* sem internet: mantém a linha direta */ });
   }
 
   /* ================= Blocos ================= */
@@ -529,12 +599,21 @@
     var d = D[id];
     var n = d.nivel;
     var seg = d.pontoSeguro;
-    var s = cabecalho(RISCOS[id].icone, "Mapa · " + RISCOS[id].titulo, "Veja seu bairro e o caminho seguro", semaforo(n, "h"));
+    var bairro = D.voce.bairro ? "Seu bairro: " + D.voce.bairro : "Seu bairro";
+    var s = cabecalho(RISCOS[id].icone, "Mapa · " + RISCOS[id].titulo, bairro + (n >= 2 ? " · caminho seguro" : " e vizinhos"), semaforo(n, "h"));
     s += '<div class="mapa-card in"' + atraso(1) + '><div class="mapa-leaflet"></div></div>' + legenda();
-    s += '<div class="rota-cards in"' + atraso(8) + '><div class="rc voce"><span class="rc-ic">' + ic("voce") + "</span><div><small>Você está aqui</small><b>" + D.voce.nome + "</b></div></div>" +
-      '<span class="rc-seta">' + ic("seta") + ic("seta") + ic("seta") + "</span>" +
-      '<div class="rc seguro"><span class="rc-ic">' + ic("seguro") + "</span><div><small>Ponto seguro</small><b>" + seg.nome + '</b></div><span class="min">' + ic("correr") + '<span class="min-val">' + seg.minutos + "</span> min</span></div></div>";
-    return s;
+    s += '<div class="rota-cards in"' + atraso(8) + '><div class="rc voce"><span class="rc-ic">' + ic("voce") + "</span><div><small>Você está aqui</small><b>" + D.voce.nome + "</b></div></div>";
+    if (temDestino(id)) {
+      var t = destino(seg);
+      s += '<span class="rc-seta">' + ic("seta") + ic("seta") + ic("seta") + "</span>" +
+        '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic(t.icone) + "</span><div><small>" + (n >= 3 ? "Vá agora para" : "Se precisar sair") + " · " + t.rotulo +
+        "</small><b>" + seg.nome + '</b></div><span class="min">' + ic("correr") + '<span class="min-val">' + seg.minutos + "</span> min</span></div>";
+    } else if (n >= 2) {
+      s += '<div class="rc seguro n' + n + '"><span class="rc-ic">' + ic("telefone") + "</span><div><small>Para onde ir</small><b>Ligue 199 · Defesa Civil</b></div></div>";
+    } else {
+      s += '<div class="rc tranquilo"><span class="rc-ic">' + ic("casaok") + "</span><div><small>Tudo tranquilo</small><b>Não precisa sair de casa</b></div></div>";
+    }
+    return s + "</div>";
   }
 
   function slideProximas() {
@@ -662,7 +741,10 @@
     }
     if (it.tipo === "mapa") {
       var seg = D[it.id].pontoSeguro;
-      return "Mapa de " + RISCOS[it.id].titulo + ". Você está na " + D.voce.nome + ". Ponto seguro: " + seg.nome + ".";
+      var onde = D.voce.bairro ? "Você está no bairro " + D.voce.bairro : "Você está na " + D.voce.nome;
+      if (!temDestino(it.id)) return "Mapa de " + RISCOS[it.id].titulo + ". " + onde + ". " + (nivel(it.id) >= 2 ? "Ligue 199 para saber para onde ir." : "Não precisa sair de casa.");
+      return "Mapa de " + RISCOS[it.id].titulo + ". " + onde + ". " + (nivel(it.id) >= 3 ? "Vá agora para " : "Se precisar sair, vá para ") +
+        destino(seg).rotulo + ": " + seg.nome + ".";
     }
     if (it.tipo === "proximas") {
       var ev = eventos();
@@ -674,6 +756,14 @@
     }
     if (it.tipo === "kit") return "Tenha sempre pronto: " + KIT.map(function (k) { return k[1]; }).join(", ") + ". Ajude crianças, idosos e quem tem dificuldade para andar.";
     return "Pedir ajuda. " + D.telefones.map(function (t) { return t.nome + ", " + t.numero.split("").join(" "); }).join(". ") + ".";
+  }
+
+  // Voz só em atenção, perigo ou extremo: com tudo tranquilo o totem fica em silêncio
+  function nivelFala(it) {
+    var m = it.id ? nivel(it.id) : maxNivel();
+    if (it.tipo === "proximas") eventos().forEach(function (e) { m = Math.max(m, e.nivel); });
+    if (it.tipo === "previsao") alertasPreventivos().forEach(function (a) { m = Math.max(m, a.nivel); });
+    return m;
   }
 
   function falar(t) {
@@ -736,7 +826,8 @@
     app.setAttribute("data-nivel", 0);
     app.innerHTML =
       '<div class="farol e"></div><div class="farol d"></div>' +
-      '<header class="topo"><div class="logo"><div><b>Alerta ' + D.cidade + "</b><small>Deslizamento e alagamento</small></div></div>" +
+      '<header class="topo"><div class="logo"><span class="logo-img"><img src="logo.svg" alt="FRAPC by Cosmos"></span>' +
+      "<div><b>Alerta " + D.cidade + "</b><small>" + (D.voce.bairro ? "Bairro " + D.voce.bairro : "Deslizamento e alagamento") + "</small></div></div>" +
       '<div class="relogio"><b id="hora">--:--</b><small id="data"></small><small id="api-estado"></small></div></header>' +
       (maior >= 3 ? '<div class="faixa n' + maior + '"><span class="faixa-ic">' + ic("sirene") + '</span><div class="faixa-trilho"><div class="faixa-fita">' + textoFaixa() + textoFaixa() + '</div></div><span class="faixa-ic">' + ic("sirene") + "</span></div>" : "") +
       '<div class="progresso" id="progresso"></div><main class="palco" id="palco"></main>' +
@@ -749,8 +840,13 @@
     document.getElementById("hora").textContent = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
     document.getElementById("data").textContent = agora.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
     var est = document.getElementById("api-estado");
-    est.textContent = (apiOk === false ? "SEM CONEXÃO · " : "") + "Dados: " + D.atualizadoEm;
+    var vivo = aoVivo && apiOk === true;
+    var s = segundosDesde(ultimaAtualizacao);
+    est.textContent = apiOk === false ? "SEM CONEXÃO COM A API (python api.py) · Dados: " + D.atualizadoEm :
+      vivo ? "● AO VIVO · atualizado há " + (s || 0) + " s" : "Dados: " + D.atualizadoEm;
     est.classList.toggle("falha", apiOk === false);
+    est.classList.toggle("vivo", vivo);
+    atualizarBotaoAoVivo();
   }
 
   var LARGURA_PAINEL = 340;
@@ -835,7 +931,9 @@
     atualizarPainel();
 
     if (it.tipo === "risco") sinal(nivel(it.id));
-    if (VOZ && !pausado) falar(textoItem(it));
+    avisarVitrine(it);
+    if (VOZ && !pausado && nivelFala(it) >= 2) falar(textoItem(it));
+    else if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     agendar(it.dur * 1000);
   }
 
@@ -851,7 +949,7 @@
   }
 
   // Valores de exemplo dos indicadores quando o nível é trocado no painel de teste
-  var INDICADOR_TESTE = { deslizamento: [3, 22, 48, 85], alagamento: [1.5, 3.4, 5.2, 6.8] };
+  var INDICADOR_TESTE = { deslizamento: [10, 45, 90, 140], alagamento: [2, 15, 30, 55] };
 
   function ajustarNivel(id, n) {
     var o = ORIGEM[id];
@@ -922,11 +1020,116 @@
     });
   }
 
+  /* ================= Localização do totem (painel de teste) ================= */
+
+  var LOCAL_CHAVE = "totem.local";
+  var LOCAL_PADRAO = { lat: -3.1336, lng: -60.0233, nome: null };
+  var CHUVAS_TESTE = [[1, "Real (agora)"], [4, "Forte (x4)"], [8, "Muito forte (x8)"], [15, "Extrema (x15)"]];
+  var fatorChuva = 1;
+  var miniMapa = null;
+  var miniMarcador = null;
+  var miniBairro = null;
+
+  function ehLocal(l) {
+    return !!l && typeof l.lat === "number" && typeof l.lng === "number" && isFinite(l.lat) && isFinite(l.lng);
+  }
+
+  // Prioridade: escolha do painel de teste > ?lat=&lng= na URL > config.js
+  function localTotem() {
+    if (MANUAL) {
+      try {
+        var salvo = JSON.parse(localStorage.getItem(LOCAL_CHAVE));
+        if (ehLocal(salvo)) return salvo;
+      } catch (e) { /* sem localStorage */ }
+    }
+    var daUrl = { lat: parseFloat(params.get("lat")), lng: parseFloat(params.get("lng")), nome: params.get("local") };
+    if (ehLocal(daUrl)) return daUrl;
+    return ehLocal(CFG.local) ? CFG.local : LOCAL_PADRAO;
+  }
+
+  function trocarLocal(l) {
+    try {
+      if (l) localStorage.setItem(LOCAL_CHAVE, JSON.stringify(l));
+      else localStorage.removeItem(LOCAL_CHAVE);
+    } catch (e) { /* sem localStorage */ }
+    recarregarDaApi();
+  }
+
+  function recarregarDaApi() {
+    var info = document.getElementById("t-local");
+    if (info) info.textContent = "Buscando dados do local...";
+    if (miniMarcador) miniMarcador.setLatLng([localTotem().lat, localTotem().lng]);
+    carregarDados().then(function (ok) {
+      apiOk = ok;
+      if (ok) {
+        registrarOrigem();
+        reconstruir();
+      }
+      atualizarMiniMapa(ok);
+    });
+  }
+
+  function atualizarMiniMapa(ok) {
+    var info = document.getElementById("t-local");
+    if (info) {
+      info.innerHTML = ok === false ? "Não foi possível buscar este local na API." :
+        "<b>" + (D.voce.bairro ? "Bairro " + D.voce.bairro : D.voce.nome) + "</b><br>" + D.voce.lat.toFixed(5) + ", " + D.voce.lng.toFixed(5) +
+        (D.meta && D.meta.fonte_chuva ? "<br><small>Chuva: " + D.meta.fonte_chuva + "</small>" : "");
+    }
+    if (!miniMapa) return;
+    var l = localTotem();
+    miniMarcador.setLatLng([l.lat, l.lng]);
+    if (miniBairro) miniMapa.removeLayer(miniBairro);
+    miniBairro = null;
+    var atual = D.bairros.filter(function (b) { return b.atual && b.geometria; })[0];
+    if (atual) {
+      miniBairro = L.geoJSON(atual.geometria, { interactive: false, style: { color: "#fff", weight: 2, dashArray: "5 4", fillColor: "#38bdf8", fillOpacity: 0.15 } }).addTo(miniMapa);
+    }
+    miniMapa.panTo([l.lat, l.lng]);
+  }
+
+  function iniciarMiniMapa() {
+    if (!window.L || !document.getElementById("t-mapa")) return;
+    var l = localTotem();
+    miniMapa = L.map("t-mapa", { attributionControl: false, minZoom: 10, maxBounds: L.latLngBounds(LIMITES_MANAUS).pad(0.1) });
+    camadaSatelite(miniMapa);
+    miniMapa.setView([l.lat, l.lng], 13);
+    miniMarcador = L.circleMarker([l.lat, l.lng], { radius: 9, color: "#fff", weight: 3, fillColor: "#2563eb", fillOpacity: 1 }).addTo(miniMapa);
+    miniMapa.on("click", function (e) {
+      if (!L.latLngBounds(LIMITES_MANAUS).contains(e.latlng)) return;
+      trocarLocal({ lat: e.latlng.lat, lng: e.latlng.lng, nome: null });
+    });
+    atualizarMiniMapa(apiOk);
+
+    apiBuscar(CFG.rotaBairros || "/totem/bairros").then(function (lista) {
+      var sel = document.getElementById("t-bairro");
+      if (!sel || !Array.isArray(lista)) return;
+      sel.innerHTML += lista.filter(ehCoord).map(function (b, k) {
+        return '<option value="' + k + '">' + txt(b.nome) + "</option>";
+      }).join("");
+      sel._lista = lista.filter(ehCoord);
+    }).catch(function () { /* lista é opcional: o clique no mapa continua funcionando */ });
+  }
+
+  function htmlPainelLocal() {
+    if (!apiBase || !apiTudo) {
+      return "<h3>Localização do totem</h3><p>Ligue a API (python api.py) para escolher a localização em Manaus.</p>";
+    }
+    return "<h3>Localização do totem</h3><p>Clique no mapa ou escolha um bairro de Manaus</p>" +
+      '<div id="t-mapa"></div><select id="t-bairro" aria-label="Bairro"><option value="">Ir para um bairro...</option></select>' +
+      '<p id="t-local"></p><button type="button" data-t="local-padrao" class="t-largo">Voltar ao local padrão</button>' +
+      '<h3>Chuva (simulação no modelo)</h3><select id="t-chuva" aria-label="Chuva">' + CHUVAS_TESTE.map(function (c) {
+        return '<option value="' + c[0] + '"' + (c[0] === fatorChuva ? " selected" : "") + ">" + c[1] + "</option>";
+      }).join("") + "</select>";
+  }
+
   function montarPainelTeste() {
     document.body.classList.add("manual-ativo");
     var p = document.createElement("aside");
     p.id = "teste";
-    var s = "<h2>Teste</h2><p>Controles fora da tela do totem</p><h3>Telas</h3>" +
+    var s = "<h2>Teste</h2><p>Controles fora da tela do totem</p>" +
+      (apiBase ? '<button type="button" data-t="aovivo" id="t-aovivo" class="t-aovivo"></button>' : "") +
+      htmlPainelLocal() + "<h3>Telas</h3>" +
       '<div class="t-nav"><button type="button" data-t="ant" class="vira" aria-label="Anterior">' + ic("seta") + '</button><button type="button" data-t="pausa" id="t-pausa"></button>' +
       '<button type="button" data-t="prox" aria-label="Próxima">' + ic("seta") + '</button></div><div id="t-lista"></div>';
     ORDEM.forEach(function (id) {
@@ -942,14 +1145,26 @@
     s += '<h3>Som</h3><label><input type="checkbox" id="t-voz"' + (VOZ ? " checked" : "") + '> Voz</label><label><input type="checkbox" id="t-som"' + (SOM ? " checked" : "") + "> Sinal sonoro</label>" + (apiBase ? '<h3>API</h3><label><input type="checkbox" id="t-api" checked> Atualizar da API</label>' : "");
     p.innerHTML = s;
     document.body.appendChild(p);
+    iniciarMiniMapa();
+    atualizarBotaoAoVivo();
+
+    // Níveis e cenários de teste são simulação: saem do tempo real e congelam a API para não sobrescrever
+    function congelarParaTeste() {
+      if (aoVivo) ligarAoVivo(false);
+      apiPausada = true;
+      var cb = document.getElementById("t-api");
+      if (cb) cb.checked = false;
+    }
 
     p.addEventListener("click", function (e) {
       var b = e.target.closest("button");
       if (!b) return;
       if (b.hasAttribute("data-cenario")) {
+        congelarParaTeste();
         aplicarCenario(parseInt(b.getAttribute("data-cenario"), 10));
         reconstruir();
       } else if (b.hasAttribute("data-risco")) {
+        congelarParaTeste();
         ajustarNivel(b.getAttribute("data-risco"), parseInt(b.getAttribute("data-nivel"), 10));
         reconstruir();
       } else if (b.hasAttribute("data-i")) {
@@ -958,6 +1173,8 @@
         var a = b.getAttribute("data-t");
         if (a === "prox") ir(1);
         else if (a === "ant") ir(-1);
+        else if (a === "local-padrao") trocarLocal(null);
+        else if (a === "aovivo") ligarAoVivo(!aoVivo);
         else pausar(!pausado);
       }
     });
@@ -969,6 +1186,15 @@
         SOM = e.target.checked;
       } else if (e.target.id === "t-api") {
         apiPausada = !e.target.checked;
+        if (apiPausada && aoVivo) ligarAoVivo(false);
+      } else if (e.target.id === "t-bairro") {
+        var b = e.target._lista && e.target._lista[parseInt(e.target.value, 10)];
+        if (b) trocarLocal({ lat: b.lat, lng: b.lng, nome: null });
+        e.target.value = "";
+      } else if (e.target.id === "t-chuva") {
+        fatorChuva = parseFloat(e.target.value) || 1;
+        if (fatorChuva !== 1 && aoVivo) ligarAoVivo(false);
+        recarregarDaApi();
       }
     });
   }
@@ -980,13 +1206,13 @@
       if (s) mostrar(parseInt(s.getAttribute("data-i"), 10));
     });
     document.addEventListener("keydown", function (e) {
-      if (e.target.tagName === "INPUT") return;
+      if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.closest("#t-mapa")) return;
       if (e.key === "ArrowRight") ir(1);
       else if (e.key === "ArrowLeft") ir(-1);
       else if (e.key === " ") { e.preventDefault(); pausar(!pausado); }
     });
     var x0 = null;
-    document.addEventListener("touchstart", function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener("touchstart", function (e) { x0 = e.target.closest("#teste") ? null : e.touches[0].clientX; }, { passive: true });
     document.addEventListener("touchend", function (e) {
       if (x0 === null) return;
       var dx = e.changedTouches[0].clientX - x0;
@@ -999,20 +1225,28 @@
 
   var CFG = window.API_CONFIG || {};
   var ROTAS = { cidade: "/cidade", deslizamento: "/deslizamento", alagamento: "/alagamento", bairros: "/bairros", horizonte: "/horizonte", previsao: "/previsao" };
-  var apiBase = params.get("api") || CFG.base || "";
+  var apiBase = VITRINE ? "" : params.get("api") || CFG.base || "";
   var apiSufixo = params.has("sufixo") ? params.get("sufixo") : CFG.sufixo || "";
+  var apiTudo = params.has("tudo") ? params.get("tudo") : CFG.tudo || "";
   var apiOk = null;
   var apiPausada = false;
 
-  function apiUrl(rota) {
-    return apiBase.replace(/\/+$/, "") + rota + apiSufixo;
+  function apiUrl(rota, consulta) {
+    return apiBase.replace(/\/+$/, "") + rota + apiSufixo + (consulta ? "?" + consulta : "");
   }
 
-  function apiBuscar(rota) {
+  // Localização do totem e simulação de chuva vão como parâmetros da rota única
+  function consultaLocal() {
+    var l = localTotem();
+    return "lat=" + l.lat.toFixed(6) + "&lng=" + l.lng.toFixed(6) + (l.nome ? "&nome=" + encodeURIComponent(l.nome) : "") +
+      (fatorChuva !== 1 ? "&fator_chuva=" + fatorChuva : "") + (forcarAtualizacao ? "&atualizar=true" : "");
+  }
+
+  function apiBuscar(rota, consulta) {
     var ctrl = window.AbortController ? new AbortController() : null;
     var t = setTimeout(function () { if (ctrl) ctrl.abort(); }, CFG.limiteMs || 5000);
     var cab = Object.assign({ Accept: "application/json" }, CFG.cabecalhos || {});
-    return fetch(apiUrl(rota), { headers: cab, cache: "no-store", signal: ctrl ? ctrl.signal : undefined })
+    return fetch(apiUrl(rota, consulta), { headers: cab, cache: "no-store", signal: ctrl ? ctrl.signal : undefined })
       .then(function (r) {
         clearTimeout(t);
         if (!r.ok) throw new Error("HTTP " + r.status);
@@ -1048,7 +1282,8 @@
   function aplicarCidade(j) {
     if (typeof j.cidade === "string") D.cidade = txt(j.cidade);
     if (typeof j.atualizadoEm === "string") D.atualizadoEm = txt(j.atualizadoEm);
-    if (j.voce && ehCoord(j.voce)) D.voce = { nome: txt(j.voce.nome), lat: j.voce.lat, lng: j.voce.lng };
+    if (j.voce && ehCoord(j.voce)) D.voce = { nome: txt(j.voce.nome), bairro: j.voce.bairro ? txt(j.voce.bairro) : "", lat: j.voce.lat, lng: j.voce.lng };
+    if (j.meta && typeof j.meta === "object") D.meta = { fonte_chuva: txt(j.meta.fonte_chuva), bairro: txt(j.meta.bairro) };
     if (Array.isArray(j.telefones) && j.telefones.length) {
       D.telefones = j.telefones.map(function (t) {
         return {
@@ -1068,13 +1303,25 @@
       });
     }
     var s = j.pontoSeguro;
-    if (s && ehCoord(s)) D[id].pontoSeguro = { nome: txt(s.nome), lat: s.lat, lng: s.lng, minutos: num0(s.minutos, 10) };
+    if (s && ehCoord(s)) {
+      D[id].pontoSeguro = { nome: txt(s.nome), tipo: DESTINOS[s.tipo] ? s.tipo : "ponto", bairro: txt(s.bairro), lat: s.lat, lng: s.lng, minutos: num0(s.minutos, 10) };
+    } else if (s === null) {
+      D[id].pontoSeguro = null;
+    }
+  }
+
+  // Só aceita polígonos GeoJSON (contorno do bairro desenhado no mapa)
+  function ehGeometria(g) {
+    return !!g && (g.type === "Polygon" || g.type === "MultiPolygon") && Array.isArray(g.coordinates);
   }
 
   function aplicarBairros(j) {
     if (!Array.isArray(j)) return;
     var v = j.filter(function (b) { return b && b.nome && ehCoord(b) && ehNivel(b.deslizamento) && ehNivel(b.alagamento); }).map(function (b) {
-      return { id: txt(b.id || b.nome), nome: txt(b.nome), lat: b.lat, lng: b.lng, deslizamento: Math.round(b.deslizamento), alagamento: Math.round(b.alagamento) };
+      return {
+        id: txt(b.id || b.nome), nome: txt(b.nome), lat: b.lat, lng: b.lng, deslizamento: Math.round(b.deslizamento), alagamento: Math.round(b.alagamento),
+        atual: b.atual === true, geometria: ehGeometria(b.geometria) ? { type: b.geometria.type, coordinates: b.geometria.coordinates } : null
+      };
     });
     if (v.length) D.bairros = v;
   }
@@ -1111,14 +1358,16 @@
   function carregarDados() {
     if (!apiBase) return Promise.resolve(false);
     var tarefas;
-    if (CFG.tudo) {
-      tarefas = [apiBuscar(CFG.tudo).then(function (j) {
+    if (apiTudo) {
+      var consulta = consultaLocal();
+      forcarAtualizacao = false;
+      tarefas = [apiBuscar(apiTudo, consulta).then(function (j) {
         aplicarCidade(j);
         Object.keys(SECOES).forEach(function (k) { if (k !== "cidade" && j[k] !== undefined) SECOES[k](j[k]); });
         return true;
       })];
     } else {
-      tarefas = Object.keys(SECOES).map(function (k) {
+      tarefas = Object.keys(SECOES).filter(function (k) { return (CFG.rotas && CFG.rotas[k]) || ROTAS[k]; }).map(function (k) {
         return apiBuscar((CFG.rotas && CFG.rotas[k]) || ROTAS[k]).then(function (j) {
           SECOES[k](j);
           return true;
@@ -1126,20 +1375,99 @@
       });
     }
     return Promise.all(tarefas.map(function (p) { return p.catch(function () { return false; }); })).then(function (r) {
-      return r.some(Boolean);
+      var ok = r.some(Boolean);
+      if (ok) ultimaAtualizacao = Date.now();
+      return ok;
     });
+  }
+
+  // Só o conteúdo dos alertas: hora de atualização e metadados mudam a cada consulta e não devem reiniciar a tela
+  function assinaturaDados() {
+    var c = Object.assign({}, D);
+    delete c.atualizadoEm;
+    delete c.meta;
+    return JSON.stringify(c);
   }
 
   function atualizarDaApi() {
     if (!apiBase || apiPausada) return;
-    var antes = JSON.stringify(D);
+    var antes = assinaturaDados();
     carregarDados().then(function (ok) {
       apiOk = ok;
-      if (ok && JSON.stringify(D) !== antes) {
+      if (ok && assinaturaDados() !== antes) {
         registrarOrigem();
         reconstruir();
+        atualizarMiniMapa(ok);
+      } else if (!ok) {
+        atualizarMiniMapa(false);
       }
     });
+  }
+
+  /* ================= Tempo real ================= */
+
+  var AO_VIVO_CHAVE = "totem.aovivo";
+  var aoVivo = false;
+  var forcarAtualizacao = false;
+  var ultimaAtualizacao = 0;
+  var timerApi = null;
+
+  function aoVivoInicial() {
+    if (!apiBase) return false;
+    if (MANUAL) {
+      try {
+        var salvo = localStorage.getItem(AO_VIVO_CHAVE);
+        if (salvo !== null) return salvo === "1";
+      } catch (e) { /* sem localStorage */ }
+    }
+    return CFG.tempoReal !== false;
+  }
+
+  function agendarApi() {
+    clearTimeout(timerApi);
+    if (!apiBase) return;
+    var seg = aoVivo ? CFG.intervaloAoVivoSeg || 15 : CFG.intervaloSeg || 60;
+    timerApi = setTimeout(function () {
+      // No modo tempo real pede a chuva de novo ao servidor (ele limita a 1 consulta por minuto)
+      forcarAtualizacao = aoVivo;
+      atualizarDaApi();
+      agendarApi();
+    }, seg * 1000);
+  }
+
+  function ligarAoVivo(sim) {
+    if (!apiBase) return;
+    aoVivo = sim;
+    try { localStorage.setItem(AO_VIVO_CHAVE, sim ? "1" : "0"); } catch (e) { /* sem localStorage */ }
+    if (sim) {
+      // Tempo real = dados reais rodando: tira simulação, pausa e congelamento da API
+      apiPausada = false;
+      fatorChuva = 1;
+      var cb = document.getElementById("t-api");
+      if (cb) cb.checked = true;
+      var sel = document.getElementById("t-chuva");
+      if (sel) sel.value = "1";
+      pausar(false);
+      forcarAtualizacao = true;
+      recarregarDaApi();
+    }
+    agendarApi();
+    relogio();
+  }
+
+  function segundosDesde(t) {
+    return t ? Math.max(0, Math.round((Date.now() - t) / 1000)) : null;
+  }
+
+  function atualizarBotaoAoVivo() {
+    var b = document.getElementById("t-aovivo");
+    if (!b) return;
+    var s = segundosDesde(ultimaAtualizacao);
+    b.classList.toggle("ligado", aoVivo);
+    b.setAttribute("aria-pressed", aoVivo ? "true" : "false");
+    b.innerHTML = '<span class="t-aovivo-luz"></span><span><b>' + (aoVivo ? "Tempo real ligado" : "Ligar tempo real") + "</b><small>" +
+      (aoVivo ? "Atualiza a cada " + (CFG.intervaloAoVivoSeg || 15) + " s" + (s !== null ? " · última há " + s + " s" : "") : "Hoje: atualiza a cada " + (CFG.intervaloSeg || 60) + " s") +
+      "</small></span>";
   }
 
   function mostrarCarregando(msg) {
@@ -1162,6 +1490,8 @@
     lista = montarLista();
     relogio();
     setInterval(relogio, 1000);
+    aoVivo = aoVivoInicial();
+    if (aoVivo) pausado = false;
     if (MANUAL) ligarNavegacaoManual();
     if (pausado) app.classList.add("pausado");
 
@@ -1172,11 +1502,40 @@
       if (pagina && lista[k].tipo === "risco" && lista[k].id === pagina) { primeiro = k; break; }
     }
     mostrar(primeiro);
-    if (apiBase) setInterval(atualizarDaApi, (CFG.intervaloSeg || 60) * 1000);
+    agendarApi();
+    if (VITRINE) ouvirVitrine();
+  }
+
+  // Site de divulgação comanda o totem embutido: trocar de tela e simular o nível de risco
+  function ouvirVitrine() {
+    window.addEventListener("message", function (e) {
+      if (e.source !== window.parent || !e.data || typeof e.data !== "object") return;
+      var m = e.data;
+      if (m.totem === "tela" && typeof m.tipo === "string") {
+        var k = -1;
+        lista.forEach(function (x, i) { if (k < 0 && x.tipo === m.tipo && (!m.id || x.id === m.id)) k = i; });
+        if (k >= 0) mostrar(k);
+      } else if (m.totem === "nivel" && ehNivel(m.nivel)) {
+        var alvo = { deslizamento: m.nivel, alagamento: Math.max(1, m.nivel - 1) };
+        ORDEM.forEach(function (id) {
+          D.horizonte.forEach(function (h) { h[id].nivel = alvo[id]; });
+          D.previsao.forEach(function (p, i) { p[id] = Math.max(1, alvo[id] - (i > 1 ? 1 : 0)); });
+          ajustarNivel(id, alvo[id]);
+        });
+        reconstruir();
+      }
+    });
+  }
+
+  function avisarVitrine(it) {
+    if (VITRINE && window.parent !== window) {
+      window.parent.postMessage({ totem: "mostrando", tipo: it.tipo, id: it.id || null, nivel: maxNivel() }, "*");
+    }
   }
 
   function abrir() {
     mostrarCarregando("Carregando alertas...");
+    forcarAtualizacao = aoVivoInicial();
     carregarDados().then(function (ok) {
       apiOk = apiBase ? ok : null;
       if (apiBase && !ok && CFG.exemploSeFalhar === false) {

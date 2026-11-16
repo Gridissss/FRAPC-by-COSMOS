@@ -1,8 +1,8 @@
 {
   "nivel": 3,
   "indicadores": [
-    { "icone": "chuva", "valor": 48, "unidade": " mm", "rotulo": "chuva em 24 horas" },
+    { "icone": "chuva", "valor": 95, "unidade": " mm", "rotulo": "chuva em 3 dias" },
     { "icone": "morro", "valor": 2, "rotulo": "bairros em perigo" }
   ],
-  "pontoSeguro": { "nome": "Ginásio Municipal", "lat": -3.1015, "lng": -60.0435, "minutos": 12 }
+  "pontoSeguro": { "nome": "Ginásio Municipal", "tipo": "abrigo", "lat": -3.1015, "lng": -60.0435, "minutos": 12 }
 }

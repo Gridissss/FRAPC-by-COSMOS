@@ -1,8 +1,8 @@
 {
   "nivel": 2,
   "indicadores": [
-    { "icone": "regua", "valor": 3.4, "dec": 1, "unidade": " m", "rotulo": "altura do rio" },
+    { "icone": "gota", "valor": 18.5, "dec": 1, "unidade": " mm", "rotulo": "chuva em 6 horas" },
     { "icone": "casa", "valor": 4, "rotulo": "bairros em atenção" }
   ],
-  "pontoSeguro": { "nome": "Escola da Colina", "lat": -3.1130, "lng": -60.0400, "minutos": 9 }
+  "pontoSeguro": { "nome": "Escola da Colina", "tipo": "abrigo", "lat": -3.1130, "lng": -60.0400, "minutos": 9 }
 }

@@ -1,0 +1,1385 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Base do Corpo de Bombeiros Militar",
+    "tipo": "bombeiros",
+    "osm_id": "node/2944307006"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.949962,
+     -3.074851
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Corpo de Bombeiros",
+    "tipo": "bombeiros",
+    "osm_id": "node/2984475217"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.979646,
+     -3.083053
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Corpo de Bombeiros",
+    "tipo": "bombeiros",
+    "osm_id": "node/4059758602"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.051899,
+     -3.108484
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Corpo de Bombeiros",
+    "tipo": "bombeiros",
+    "osm_id": "way/343782156"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.999896,
+     -3.118034
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Corpo de Bombeiros Militar do Amazonas",
+    "tipo": "bombeiros",
+    "osm_id": "node/3024487870"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.026833,
+     -3.074509
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Quinto Batalhão Bombeiro Militar",
+    "tipo": "bombeiros",
+    "osm_id": "node/2934701881"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.063119,
+     -3.103653
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Ambulatório Araújo Lima",
+    "tipo": "hospital",
+    "osm_id": "node/2313041652"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.018147,
+     -3.116541
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "CAIC",
+    "tipo": "hospital",
+    "osm_id": "way/1072257196"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.957666,
+     -3.076688
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "CAIC Alberto Carreira",
+    "tipo": "hospital",
+    "osm_id": "way/1076845222"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.054223,
+     -3.107511
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "CAIC Rubin Sá",
+    "tipo": "hospital",
+    "osm_id": "node/9915440386"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.052064,
+     -3.072537
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "CENTRO DE PARTO",
+    "tipo": "hospital",
+    "osm_id": "node/13126352342"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.985802,
+     -3.020099
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Caimi Ada Rodrigues Viana",
+    "tipo": "hospital",
+    "osm_id": "way/290061346"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.058135,
+     -3.093966
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Cemom",
+    "tipo": "hospital",
+    "osm_id": "way/635686650"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.017415,
+     -3.106
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Centro Psiquiátrico",
+    "tipo": "hospital",
+    "osm_id": "node/1737405597"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.02742,
+     -3.086779
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Centro de Atenção Psicosocial Silvério Tundis",
+    "tipo": "hospital",
+    "osm_id": "way/296278302"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.002606,
+     -2.985445
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Centro de SaúdeMiguel Carrete",
+    "tipo": "hospital",
+    "osm_id": "way/1075643244"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.044977,
+     -3.109818
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Clínica Santa Rosa",
+    "tipo": "hospital",
+    "osm_id": "node/2305004338"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.013081,
+     -3.122803
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Clínica e Hospital São Sebastião",
+    "tipo": "hospital",
+    "osm_id": "node/3005664827"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.993176,
+     -3.019852
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Comandante Telles",
+    "tipo": "hospital",
+    "osm_id": "way/421371884"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.945973,
+     -3.067394
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Fundação Alfredo da Mata",
+    "tipo": "hospital",
+    "osm_id": "way/1075015668"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.005267,
+     -3.119666
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Fundação Centro de Controle de Oncologia",
+    "tipo": "hospital",
+    "osm_id": "way/1072565091"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.043827,
+     -3.083803
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Fundação Doutor Thomas",
+    "tipo": "hospital",
+    "osm_id": "way/450518509"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.016758,
+     -3.099903
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Fundação de Medicina Tropical Dr. Heitor Vieira Dourado",
+    "tipo": "hospital",
+    "osm_id": "way/1075068814"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.035058,
+     -3.086791
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hemoam - Fundação Hospitalar de Hematologia e Hemoterapia do Amazonas",
+    "tipo": "hospital",
+    "osm_id": "node/1721394302"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.027199,
+     -3.086054
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "node/5995771045"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.019854,
+     -3.105046
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "way/124809294"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.990378,
+     -3.014263
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "way/224871217"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.017691,
+     -3.12309
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "way/291802879"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.923698,
+     -3.026854
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "way/297645847"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.984205,
+     -3.136851
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital",
+    "tipo": "hospital",
+    "osm_id": "way/297645849"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.984707,
+     -3.138122
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Adriano Jorge",
+    "tipo": "hospital",
+    "osm_id": "node/1715667499"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.005602,
+     -3.118882
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Adventista de Manaus",
+    "tipo": "hospital",
+    "osm_id": "way/702579954"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.984758,
+     -3.13649
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Beneficente Portuguesa",
+    "tipo": "hospital",
+    "osm_id": "way/496533405"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.019659,
+     -3.130694
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital E P S Da Crianca Da Zona Oeste",
+    "tipo": "hospital",
+    "osm_id": "way/1078409286"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.057368,
+     -3.094472
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Geral Dr. Geraldo Da Rocha",
+    "tipo": "hospital",
+    "osm_id": "way/1302149464"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.892201,
+     -3.082972
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Infantil Dr. Fajardo",
+    "tipo": "hospital",
+    "osm_id": "way/1302141145"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.020214,
+     -3.124865
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Infantil Unimed",
+    "tipo": "hospital",
+    "osm_id": "way/496533382"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.026142,
+     -3.110421
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Militar de Área de Manaus",
+    "tipo": "hospital",
+    "osm_id": "way/510539654"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.005675,
+     -3.130963
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital P S Dr João Lúcio P Machado",
+    "tipo": "hospital",
+    "osm_id": "way/1080518372"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.961968,
+     -3.073943
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Pediátrico Rio Solimões",
+    "tipo": "hospital",
+    "osm_id": "node/14320041001"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.015894,
+     -3.115467
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Público Veterinário do Amazonas",
+    "tipo": "hospital",
+    "osm_id": "node/13239001829"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.023341,
+     -3.081922
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Público Veterinário do Amazonas",
+    "tipo": "hospital",
+    "osm_id": "way/1442820319"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.023162,
+     -3.081879
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Rio Negro",
+    "tipo": "hospital",
+    "osm_id": "way/647571844"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.022739,
+     -3.124692
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Samel",
+    "tipo": "hospital",
+    "osm_id": "way/224909549"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.019614,
+     -3.126471
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Santa Casa de Misericórdia",
+    "tipo": "hospital",
+    "osm_id": "node/6752914013"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.024974,
+     -3.130237
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Santa Júlia",
+    "tipo": "hospital",
+    "osm_id": "way/222329811"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.022063,
+     -3.116705
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital São Lucas",
+    "tipo": "hospital",
+    "osm_id": "way/1078731599"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.028822,
+     -3.130146
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Unimed",
+    "tipo": "hospital",
+    "osm_id": "way/822426876"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.006176,
+     -3.055138
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Universitário Francisca Mendes",
+    "tipo": "hospital",
+    "osm_id": "way/1302143345"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.963462,
+     -3.031993
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Universitário Getúlio Vargas",
+    "tipo": "hospital",
+    "osm_id": "node/12055981503"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.01889,
+     -3.116343
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital Universitário Getúlio Vargas",
+    "tipo": "hospital",
+    "osm_id": "way/1301601674"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.018887,
+     -3.116442
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital de Aeronáutica de Manaus - HAMN",
+    "tipo": "hospital",
+    "osm_id": "node/9915193535"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.989989,
+     -3.143981
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital de Olhos Júlia Herrera",
+    "tipo": "hospital",
+    "osm_id": "way/1080194227"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.022753,
+     -3.124107
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital e Maternidade Chapot Prévost",
+    "tipo": "hospital",
+    "osm_id": "way/1302147356"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.895233,
+     -3.090104
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital e Pronto Socorro 28 de Agosto",
+    "tipo": "hospital",
+    "osm_id": "way/893145498"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.01413,
+     -3.101819
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital e Pronto-Socorro Delphina Rinaldi Abdel Aziz",
+    "tipo": "hospital",
+    "osm_id": "relation/9471586"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.029603,
+     -2.998009
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital e Pronto-Socorro da Criança Zona Leste",
+    "tipo": "hospital",
+    "osm_id": "node/1930037145"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.961404,
+     -3.073504
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Hospital e Pronto-Socorro da Criança Zona Sul",
+    "tipo": "hospital",
+    "osm_id": "way/1302121091"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.003112,
+     -3.11887
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Instituto da Criança do Amazonas",
+    "tipo": "hospital",
+    "osm_id": "node/1800111347"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.004042,
+     -3.11954
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Instituto da Mulher Dona Lindu",
+    "tipo": "hospital",
+    "osm_id": "way/1302143998"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.014301,
+     -3.101147
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Instituto de Saúde da Criança do Amazonas (Icam)",
+    "tipo": "hospital",
+    "osm_id": "way/1302140355"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.004221,
+     -3.119068
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Alvorada",
+    "tipo": "hospital",
+    "osm_id": "way/1075003568"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.036497,
+     -3.076702
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Ana Braga",
+    "tipo": "hospital",
+    "osm_id": "way/182630780"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.956899,
+     -3.076887
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Azilda da Silva Marreiro",
+    "tipo": "hospital",
+    "osm_id": "node/7221200453"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.991124,
+     -3.013967
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Dona Nazira Daou",
+    "tipo": "hospital",
+    "osm_id": "node/2942553420"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.963519,
+     -3.032826
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Doutor Moura Tapajóz",
+    "tipo": "hospital",
+    "osm_id": "way/290060868"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.058211,
+     -3.095886
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Maternidade Estadual Balbina Mestrinho",
+    "tipo": "hospital",
+    "osm_id": "way/496550874"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.011235,
+     -3.12519
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Módulo Saúde da Família",
+    "tipo": "hospital",
+    "osm_id": "node/3004873032"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.044507,
+     -3.111122
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Odonto Corp",
+    "tipo": "hospital",
+    "osm_id": "node/3002701521"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.040513,
+     -3.10823
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Policlínica Castelo Branco",
+    "tipo": "hospital",
+    "osm_id": "way/1072525139"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.010248,
+     -3.081162
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Policlínica Doutor Antônio Reis",
+    "tipo": "hospital",
+    "osm_id": "node/3016946206"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.994794,
+     -3.137137
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Policlínica João dos Santos Braga",
+    "tipo": "hospital",
+    "osm_id": "way/546716035"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.978638,
+     -3.005341
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Policlínica Municipal Doutor Djalma Batista",
+    "tipo": "hospital",
+    "osm_id": "way/1075646735"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.062217,
+     -3.105706
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Policlínica Municipal Enfermeira Ana Ferreira",
+    "tipo": "hospital",
+    "osm_id": "way/1077030399"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.933394,
+     -3.023518
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Pro Physical",
+    "tipo": "hospital",
+    "osm_id": "node/3010302298"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.013657,
+     -3.114537
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Pronto Socorro Doutor Aristóteles Platão Bezerra de Araújo",
+    "tipo": "hospital",
+    "osm_id": "way/1072240589"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.94173,
+     -3.038263
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Pronto Socorro Infantil Unimed",
+    "tipo": "hospital",
+    "osm_id": "way/496533383"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.025647,
+     -3.11061
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Pronto Socorro Mora Tapajós",
+    "tipo": "hospital",
+    "osm_id": "node/4054631623"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.058277,
+     -3.095817
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Prontocord",
+    "tipo": "hospital",
+    "osm_id": "way/1078382729"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.014395,
+     -3.115064
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "SPA - Serviço de Pronto Atendimento do Alvorada",
+    "tipo": "hospital",
+    "osm_id": "way/1072180321"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.035277,
+     -3.079971
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "SPA Galiléia",
+    "tipo": "hospital",
+    "osm_id": "node/2089247168"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.990856,
+     -3.013941
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "SPA Joventina Dias",
+    "tipo": "hospital",
+    "osm_id": "way/184440792"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.065083,
+     -3.104789
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "SPA São Raimundo",
+    "tipo": "hospital",
+    "osm_id": "way/1072193681"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.037252,
+     -3.127554
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "TERRENO",
+    "tipo": "hospital",
+    "osm_id": "way/1427829007"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.98579,
+     -3.020534
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "U.S.A Dr. Alfredo Campos",
+    "tipo": "hospital",
+    "osm_id": "way/1074754381"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.937692,
+     -3.075321
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "UBS Deodato de Miranda Leão",
+    "tipo": "hospital",
+    "osm_id": "way/1077887006"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.036567,
+     -3.119975
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "UBS Dr. José Avelino Pereira",
+    "tipo": "hospital",
+    "osm_id": "way/290758297"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.923861,
+     -3.03287
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "UBS Morro da Liberdade",
+    "tipo": "hospital",
+    "osm_id": "way/1082141087"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.000139,
+     -3.135412
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Unidade Básica de Saúde Ida Mentoni",
+    "tipo": "hospital",
+    "osm_id": "way/1076038709"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.042356,
+     -3.108755
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Unidade Básica de Saúde da Familia L01",
+    "tipo": "hospital",
+    "osm_id": "way/1077878026"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -59.92805,
+     -3.017933
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Unidade Da Família Parque das Tribos",
+    "tipo": "hospital",
+    "osm_id": "node/12960273092"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.071885,
+     -2.988141
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "nome": "Unimed",
+    "tipo": "hospital",
+    "osm_id": "way/816483183"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -60.009123,
+     -3.114242
+    ]
+   }
+  }
+ ]
+}

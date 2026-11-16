@@ -6,7 +6,7 @@ window.DADOS = {
   atualizadoEm: "14/11/2026 · 08:00",
 
   // Onde o totem está instalado
-  voce: { nome: "Praça do Santo Antônio", lat: -3.1085, lng: -60.0455 },
+  voce: { nome: "Praça do Santo Antônio", bairro: "Santo Antônio", lat: -3.1085, lng: -60.0455 },
 
   telefones: [
     { nome: "Defesa Civil", numero: "199", icone: "sirene", usos: ["morro", "casa"] },
@@ -14,28 +14,30 @@ window.DADOS = {
     { nome: "SAMU", numero: "192", icone: "cruz", usos: ["cruz", "coracao"] }
   ],
 
+  // pontoSeguro.tipo: hospital, bombeiros, defesa_civil, abrigo ou bairro (bairro vizinho mais seguro)
   deslizamento: {
     nivel: 3,
     indicadores: [
-      { icone: "chuva", valor: 48, unidade: " mm", rotulo: "chuva em 24 horas" },
+      { icone: "chuva", valor: 95, unidade: " mm", rotulo: "chuva em 3 dias" },
       { icone: "morro", valor: 2, rotulo: "bairros em perigo" }
     ],
-    pontoSeguro: { nome: "Ginásio Municipal", lat: -3.1015, lng: -60.0435, minutos: 12 }
+    pontoSeguro: { nome: "Ginásio Municipal", tipo: "abrigo", lat: -3.1015, lng: -60.0435, minutos: 12 }
   },
 
   alagamento: {
     nivel: 2,
     indicadores: [
-      { icone: "regua", valor: 3.4, dec: 1, unidade: " m", rotulo: "altura do rio" },
+      { icone: "gota", valor: 18.5, dec: 1, unidade: " mm", rotulo: "chuva em 6 horas" },
       { icone: "casa", valor: 4, rotulo: "bairros em atenção" }
     ],
-    pontoSeguro: { nome: "Escola da Colina", lat: -3.1130, lng: -60.0400, minutos: 9 }
+    pontoSeguro: { nome: "Escola da Colina", tipo: "abrigo", lat: -3.1130, lng: -60.0400, minutos: 9 }
   },
 
-  // Nível de cada bairro por tipo de risco
+  // Nível de cada bairro por tipo de risco. atual = bairro onde o totem está.
+  // A API também manda "geometria" (polígono GeoJSON) para desenhar o contorno do bairro.
   bairros: [
     { id: "compensa", nome: "Compensa", lat: -3.1055, lng: -60.0585, deslizamento: 3, alagamento: 2 },
-    { id: "santoantonio", nome: "Santo Antônio", lat: -3.1125, lng: -60.0505, deslizamento: 2, alagamento: 2 },
+    { id: "santoantonio", nome: "Santo Antônio", lat: -3.1125, lng: -60.0505, deslizamento: 2, alagamento: 2, atual: true },
     { id: "saojorge", nome: "São Jorge", lat: -3.0960, lng: -60.0525, deslizamento: 3, alagamento: 1 },
     { id: "gloria", nome: "Glória", lat: -3.1100, lng: -60.0640, deslizamento: 2, alagamento: 1 },
     { id: "saoraimundo", nome: "São Raimundo", lat: -3.1180, lng: -60.0465, deslizamento: 1, alagamento: 2 },

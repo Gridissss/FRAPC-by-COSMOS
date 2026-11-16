@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projeto Cosmos · O totem que avisa antes do barranco cair</title>
+  <meta name="description" content="Totens de rua em Manaus que juntam radar de satélite, chuva em tempo real e um modelo treinado com ocorrências da Defesa Civil para avisar quando ficar, se preparar ou sair — e para onde ir.">
+  <meta name="theme-color" content="#0b1322">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/site.css">
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  <div class="progresso-leitura" aria-hidden="true"><span id="progresso-leitura"></span></div>
+
+  <header class="nav" id="nav">
+    <a class="nav-logo" href="#topo" aria-label="Projeto Cosmos — início">
+      <img src="assets/logo.svg" alt="FRAPC by Cosmos" width="250" height="120">
+    </a>
+    <nav aria-label="Seções">
+      <ul class="nav-links">
+        <li><a href="#como-funciona">Como funciona</a></li>
+        <li><a href="#problema">Por que Manaus</a></li>
+        <li><a href="#video">Vídeo</a></li>
+        <li><a href="#niveis">Níveis</a></li>
+        <li><a href="#tecnologia">Tecnologia</a></li>
+        <li><button type="button" class="nav-docs" data-abrir-docs>Documentos</button></li>
+      </ul>
+    </nav>
+    <a class="botao botao-pequeno" href="#como-funciona">Ver o totem</a>
+  </header>
+
+  <main id="conteudo">
+    <!-- Hero + Como funciona dividem o mesmo totem fixo à direita -->
+    <div class="palco" id="topo">
+      <canvas class="chuva" aria-hidden="true"></canvas>
+
+      <div class="palco-texto">
+        <section class="hero" aria-labelledby="titulo-hero" data-tela="resumo">
+          <p class="sobretitulo"><span class="ponto-vivo" aria-hidden="true"></span>NASA Space Apps · Manaus 2026 · 3°06′S 60°01′O</p>
+          <h1 class="titulo-hero" id="titulo-hero">
+            <span class="linha"><span>O barranco</span></span>
+            <span class="linha"><span>não avisa.</span></span>
+            <span class="linha"><span><em>O totem avisa.</em></span></span>
+          </h1>
+          <p class="hero-lead">
+            Totens nas praças e paradas de ônibus de Manaus que cruzam radar de satélite, a chuva de agora e
+            um modelo treinado com ocorrências da Defesa Civil. A resposta vem em linguagem de rua:
+            <strong>fique em casa, fique pronto ou saia</strong> — e para onde ir.
+          </p>
+          <div class="hero-acoes">
+            <a class="botao" href="#passo-1">Ver como funciona</a>
+            <a class="botao botao-fantasma" href="#video"><span class="icone-play" aria-hidden="true"></span>Assistir · 30 s</a>
+          </div>
+          <dl class="numeros">
+            <div><dt><span class="conta" data-alvo="75">0</span> mil</dt><dd>pessoas vivem em encostas de alto risco em Manaus (Censo)</dd></div>
+            <div><dt><span class="conta" data-alvo="4582">0</span></dt><dd>quadras de 500 m monitoradas uma a uma</dd></div>
+            <div><dt><span class="conta" data-alvo="15">0</span> s</dt><dd>entre uma atualização e outra no modo tempo real</dd></div>
+          </dl>
+        </section>
+
+        <section class="passos" id="como-funciona" aria-labelledby="titulo-como">
+          <header class="cabeca-secao">
+            <p class="rotulo">01 — Como funciona</p>
+            <h2 id="titulo-como">Do satélite até a calçada, <em>em quatro passos</em>.</h2>
+            <p class="dica-rolagem">Role a página: o totem ao lado acompanha cada passo.</p>
+          </header>
+
+          <article class="passo" id="passo-1" data-tela="mapa" data-id="deslizamento">
+            <span class="passo-num">01</span>
+            <h3>Um radar que enxerga através da chuva</h3>
+            <p>Debaixo das nuvens da Amazônia, satélites de imagem comum ficam cegos. O radar de abertura sintética (SAR)
+              não: ele mede a umidade e o movimento do solo mesmo durante a tempestade. Hoje usamos o Sentinel-1; o projeto
+              foi desenhado para a banda L do NISAR, da NASA, que percebe deslocamentos milimétricos em encostas.</p>
+            <ul class="fatos"><li>Relevo e declividade</li><li>Cota dos baixios</li><li>Grade de 500 × 500 m</li></ul>
+          </article>
+
+          <article class="passo" id="passo-2" data-tela="proximas">
+            <span class="passo-num">02</span>
+            <h3>A chuva de agora — e a das próximas horas</h3>
+            <p>A cada minuto o sistema busca a chuva medida e prevista para o ponto exato do totem (Meteomatics, com
+              Open-Meteo de reserva) e soma o que caiu em 1, 6, 24 e 72 horas. Solo encharcado há três dias desliza com
+              muito menos chuva do que solo seco.</p>
+            <ul class="fatos"><li>Acumulado 1 h → 72 h</li><li>Previsão para 5 dias</li><li>Cache para não cair</li></ul>
+          </article>
+
+          <article class="passo" id="passo-3" data-tela="risco" data-id="deslizamento">
+            <span class="passo-num">03</span>
+            <h3>Um modelo treinado com o que já aconteceu</h3>
+            <p>Um LightGBM aprendeu com o histórico de ocorrências da Defesa Civil quais combinações de chuva, relevo e radar
+              terminaram em alagamento ou deslizamento. A probabilidade de cada quadra vira um dos quatro níveis — e o nível
+              do bairro só sobe quando o risco cobre uma parte real dele.</p>
+            <ul class="fatos"><li>Tranquilo · Atenção · Perigo · Extremo</li><li>Limiar calibrado por F1</li></ul>
+          </article>
+
+          <article class="passo" id="passo-4" data-tela="mapa" data-id="alagamento">
+            <span class="passo-num">04</span>
+            <h3>Uma resposta que qualquer pessoa entende</h3>
+            <p>O totem mostra o seu bairro e os vizinhos num mapa de satélite e, quando é preciso sair, traça a rota a pé
+              até o hospital, quartel de bombeiros ou área segura mais próxima — sempre num bairro que está tranquilo.
+              Se o seu bairro está alagando, ele não manda você para o hospital do mesmo bairro.</p>
+            <ul class="fatos"><li>Sem toque: zoom automático</li><li>Voz só em alerta</li><li>199 · 193 · 192</li></ul>
+          </article>
+        </section>
+      </div>
+
+      <aside class="palco-totem" aria-label="Demonstração do totem funcionando">
+        <div class="totem-fixo">
+          <div class="totem-inclina">
+            <div class="totem-aparelho">
+              <span class="totem-camera" aria-hidden="true"></span>
+              <iframe id="totem-demo" src="../index.html?vitrine" title="Totem Alerta Manaus funcionando (demonstração)" loading="eager"></iframe>
+              <span class="totem-brilho" aria-hidden="true"></span>
+            </div>
+            <div class="totem-pe" aria-hidden="true"></div>
+          </div>
+          <p class="totem-legenda"><span class="ponto-vivo" aria-hidden="true"></span><span id="totem-tela">Hoje na cidade</span></p>
+          <div class="simulador" role="group" aria-label="Simular nível de risco no totem">
+            <span class="simulador-rotulo">Simule a chuva</span>
+            <button type="button" data-nivel="1" class="n1">Tranquilo</button>
+            <button type="button" data-nivel="2" class="n2">Atenção</button>
+            <button type="button" data-nivel="3" class="n3" aria-pressed="true">Perigo</button>
+            <button type="button" data-nivel="4" class="n4">Extremo</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="faixa" aria-hidden="true">
+      <div class="faixa-trilho">
+        <span>Compensa</span><span>São Jorge</span><span>Educandos</span><span>Centro</span><span>Glória</span><span>São Raimundo</span>
+        <span>Jorge Teixeira</span><span>Cidade de Deus</span><span>Cidade Nova</span><span>Mauazinho</span><span>Coroado</span><span>Aleixo</span>
+        <span>Compensa</span><span>São Jorge</span><span>Educandos</span><span>Centro</span><span>Glória</span><span>São Raimundo</span>
+        <span>Jorge Teixeira</span><span>Cidade de Deus</span><span>Cidade Nova</span><span>Mauazinho</span><span>Coroado</span><span>Aleixo</span>
+      </div>
+    </div>
+
+    <section class="problema" id="problema" aria-labelledby="titulo-problema">
+      <header class="cabeca-secao">
+        <p class="rotulo">02 — Por que Manaus</p>
+        <h2 id="titulo-problema">De janeiro a maio, o inverno amazônico <em>não pede licença</em>.</h2>
+      </header>
+      <div class="problema-grade">
+        <figure class="foto foto-grande" data-revela>
+          <img src="assets/nuvens-manaus.jpg" alt="Ilustração gerada por inteligência artificial de casas em encosta sob nuvens carregadas" loading="lazy" width="1600" height="680">
+          <span class="selo-ia">Imagem gerada por IA</span>
+          <figcaption>Ilustração gerada por IA de uma encosta em bairro periférico, antes da pancada da tarde.</figcaption>
+        </figure>
+        <div class="problema-texto" data-revela>
+          <p class="numero-gigante"><span class="conta" data-alvo="75">0</span><small>mil</small></p>
+          <p>pessoas vivem em encostas classificadas como de alto risco na cidade, segundo o Censo. Os igarapés do Mindu,
+            Educandos e São Raimundo enchem em minutos; o solo da Formação Alter do Chão, encharcado, cede sem barulho.</p>
+          <p class="destaque">O aviso precisa estar onde as pessoas estão — na parada de ônibus, na praça, na porta da escola.
+            Não num aplicativo que ninguém abriu.</p>
+        </div>
+        <figure class="foto foto-pequena" data-revela>
+          <img src="assets/satelite.jpg" alt="Satélite de radar em órbita sobre a Terra à noite" loading="lazy" width="1600" height="700">
+          <figcaption>O radar SAR mede o solo através das nuvens, de dia ou de noite.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="video" id="video" aria-labelledby="titulo-video">
+      <header class="cabeca-secao clara">
+        <p class="rotulo">03 — O projeto em 30 segundos</p>
+        <h2 id="titulo-video">Um botão, dados da NASA <em>e menos gente pega de surpresa</em>.</h2>
+      </header>
+      <div class="video-moldura" id="video-moldura" data-youtube="61hn_QcZrLA">
+        <img class="video-capa" src="assets/poster.jpg" alt="" width="1600" height="900">
+        <button type="button" class="video-play" id="video-play" aria-label="Assistir ao vídeo do Projeto Cosmos no YouTube">
+          <span class="video-play-disco"><span class="icone-play" aria-hidden="true"></span></span>
+          <span class="video-play-texto">Assistir · 0:30</span>
+        </button>
+      </div>
+      <p class="video-link"><a href="https://www.youtube.com/watch?v=61hn_QcZrLA" target="_blank" rel="noopener">Abrir no YouTube ↗</a></p>
+    </section>
+
+    <section class="niveis" id="niveis" aria-labelledby="titulo-niveis">
+      <header class="cabeca-secao">
+        <p class="rotulo">04 — Quatro níveis, quatro atitudes</p>
+        <h2 id="titulo-niveis">Ninguém precisa entender de chuva em milímetros. <em>Só de cor.</em></h2>
+      </header>
+      <ol class="niveis-lista">
+        <li class="nivel n1" data-revela style="--i:0">
+          <span class="nivel-sinal" aria-hidden="true"></span>
+          <h3>Tranquilo</h3>
+          <p class="nivel-frase">Pode ficar em casa.</p>
+          <p>O totem fica em silêncio e mostra o bairro e os vizinhos. Não manda ninguém sair.</p>
+        </li>
+        <li class="nivel n2" data-revela style="--i:1">
+          <span class="nivel-sinal" aria-hidden="true"></span>
+          <h3>Atenção</h3>
+          <p class="nivel-frase">Pode acontecer. Fique pronto.</p>
+          <p>Deixe a mochila pronta. O totem já indica para onde ir, se precisar sair.</p>
+        </li>
+        <li class="nivel n3" data-revela style="--i:2">
+          <span class="nivel-sinal" aria-hidden="true"></span>
+          <h3>Perigo</h3>
+          <p class="nivel-frase">Vai acontecer. Saia de casa.</p>
+          <p>Rota a pé até um hospital, bombeiros ou área segura num bairro tranquilo. Voz e sinal sonoro.</p>
+        </li>
+        <li class="nivel n4" data-revela style="--i:3">
+          <span class="nivel-sinal" aria-hidden="true"></span>
+          <h3>Extremo</h3>
+          <p class="nivel-frase">Está acontecendo. Saia agora.</p>
+          <p>Faixa piscando, telefones da Defesa Civil em destaque e o caminho mais curto para longe do risco.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="rua" aria-labelledby="titulo-rua">
+      <header class="cabeca-secao">
+        <p class="rotulo">05 — Feito para a rua, não para a vitrine</p>
+        <h2 id="titulo-rua">Decisões pequenas que <em>fazem diferença no dia</em>.</h2>
+      </header>
+      <div class="rua-grade">
+        <article class="cartao cartao-largo" data-revela style="--i:0">
+          <figure class="cartao-foto"><img src="assets/totem-na-rua.jpg" alt="Montagem ilustrativa do totem Alerta Manaus em perigo de deslizamento numa comunidade em encosta" loading="lazy" width="1600" height="684"><span class="selo-ia">Montagem ilustrativa</span></figure>
+          <div>
+            <h3>Cada totem sabe onde está</h3>
+            <p>O totem identifica o bairro pelo contorno oficial do OpenStreetMap e olha também os que fazem divisa. A
+              mesma tela em Educandos e em Cidade Nova mostra realidades diferentes.</p>
+          </div>
+        </article>
+        <article class="cartao" data-revela style="--i:1">
+          <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><rect x="12" y="4" width="24" height="40" rx="5"/><path d="M20 38h8"/><path d="M6 6l36 36"/></svg>
+          <h3>Ninguém precisa tocar</h3>
+          <p>Zoom automático: o mapa abre no bairro inteiro e depois aproxima no caminho. Nada de tela suja ou travada.</p>
+        </article>
+        <article class="cartao" data-revela style="--i:2">
+          <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18h8l10-8v28l-10-8H8z"/><path d="M33 17c3 4 3 10 0 14M38 12c6 7 6 17 0 24"/></svg>
+          <h3>Fala só quando importa</h3>
+          <p>Em dia tranquilo, silêncio. A voz e o sinal sonoro entram em atenção, perigo e extremo.</p>
+        </article>
+        <article class="cartao" data-revela style="--i:3">
+          <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 44s14-12 14-24a14 14 0 0 0-28 0c0 12 14 24 14 24z"/><path d="M24 14v12M18 20h12"/></svg>
+          <h3>Não manda você para outro alagado</h3>
+          <p>Hospital só vale se o bairro dele está tranquilo. Longe demais? O totem indica a área segura mais próxima.</p>
+        </article>
+        <article class="cartao" data-revela style="--i:4">
+          <svg class="cartao-icone" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 18a26 26 0 0 1 36 0M12 25a17 17 0 0 1 24 0M18 32a8 8 0 0 1 12 0"/><circle cx="24" cy="38" r="2.5"/></svg>
+          <h3>Aguenta internet ruim</h3>
+          <p>Bairros e pontos de apoio ficam salvos no próprio sistema. Se a conexão cai, o totem avisa e volta sozinho.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="manifesto" aria-labelledby="titulo-manifesto">
+      <p class="rotulo" id="titulo-manifesto">Manifesto · FRAPC Cosmos</p>
+      <blockquote class="manifesto-texto" id="manifesto-texto">
+        Enquanto os satélites orbitam o silêncio do espaço, o FRAPC Cosmos escuta o <em>coração de Manaus</em>.
+        Nós descemos a tecnologia da NASA das estrelas direto para as zonas mais vulneráveis da cidade.
+        Mais do que decodificar dados de radar, entregamos alívio e esperança.
+        Porque cada alerta emitido a tempo é <em>uma história inteira que não foi apagada</em>.
+      </blockquote>
+    </section>
+
+    <section class="tecnologia" id="tecnologia" aria-labelledby="titulo-tec">
+      <header class="cabeca-secao clara">
+        <p class="rotulo">06 — Por baixo do capô</p>
+        <h2 id="titulo-tec">Dados abertos, <em>modelo explicável</em>, código aberto.</h2>
+      </header>
+      <ol class="fluxo" aria-label="Caminho dos dados">
+        <li data-revela style="--i:0"><span class="fluxo-num">A</span><b>Satélite</b><small>SAR Sentinel-1 · NISAR banda L · relevo</small></li>
+        <li data-revela style="--i:1"><span class="fluxo-num">B</span><b>Chuva</b><small>Meteomatics · Open-Meteo · 1 h a 72 h</small></li>
+        <li data-revela style="--i:2"><span class="fluxo-num">C</span><b>Modelo</b><small>LightGBM · ocorrências da Defesa Civil</small></li>
+        <li data-revela style="--i:3"><span class="fluxo-num">D</span><b>Totem</b><small>API FastAPI · mapa Leaflet · imagens Esri</small></li>
+      </ol>
+      <svg class="fluxo-linha" viewBox="0 0 1000 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0 10H1000"/></svg>
+      <div class="tec-colunas">
+        <div data-revela>
+          <h3>O que entra</h3>
+          <ul class="lista-mono">
+            <li>Radar SAR · retroespalhamento VV / VH</li>
+            <li>Modelo digital de elevação · cota e declividade</li>
+            <li>Chuva horária medida e prevista</li>
+            <li>Ocorrências históricas da Defesa Civil</li>
+            <li>Bairros, hospitais e bombeiros · OpenStreetMap</li>
+          </ul>
+        </div>
+        <div data-revela>
+          <h3>O que sai</h3>
+          <ul class="lista-mono">
+            <li>Nível de alagamento e deslizamento por bairro</li>
+            <li>Próximas 5 horas, amanhã e próximos 4 dias</li>
+            <li>Para onde ir e quanto tempo a pé</li>
+            <li>Uma tela por totem, atualizada a cada 15 s</li>
+            <li>API aberta: <code>GET /totem?lat=&amp;lng=</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="chamada" aria-labelledby="titulo-chamada">
+      <h2 id="titulo-chamada" data-revela>Um totem em cada parada. <em>Um aviso antes do barro.</em></h2>
+      <div class="chamada-acoes" data-revela>
+        <a class="botao" href="#como-funciona">Ver o totem de novo</a>
+        <a class="botao botao-fantasma" href="https://github.com/Gridissss/Cosmos-na-NASA" target="_blank" rel="noopener">Código no GitHub</a>
+        <button type="button" class="botao botao-fantasma" data-abrir-docs>Ver mais detalhes</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="docs" id="docs" aria-labelledby="docs-titulo">
+    <div class="docs-caixa">
+      <header class="docs-topo">
+        <div>
+          <p class="rotulo">NASA Space Apps · Manaus 2026</p>
+          <h2 id="docs-titulo">Mais detalhes do projeto</h2>
+        </div>
+        <button type="button" class="docs-fechar" data-fechar-docs aria-label="Fechar">×</button>
+      </header>
+      <div class="docs-lista">
+        <article class="doc">
+          <a class="doc-capa" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">
+            <img src="assets/doc-canvas.jpg" alt="Primeira página do Storytelling Canvas do projeto" width="1100" height="778" loading="lazy">
+          </a>
+          <div class="doc-corpo">
+            <span class="doc-tipo">PDF · Storytelling Canvas</span>
+            <h3>As pessoas que vivem em situações de periferia e ribeirinhos</h3>
+            <p>Para quem é o totem, a dor que ele evita, como funciona, as evidências (dados geoprocessados e censitários,
+              Python, pandas e LightGBM) e o impacto esperado: a preservação da vida.</p>
+            <div class="doc-acoes">
+              <a class="botao botao-pequeno" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">Abrir PDF</a>
+              <a class="botao botao-pequeno botao-fantasma" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" download>Baixar</a>
+            </div>
+          </div>
+        </article>
+        <article class="doc">
+          <a class="doc-capa" href="../5w2h.pdf" target="_blank" rel="noopener">
+            <img src="assets/doc-5w2h.jpg" alt="Primeira página do 5W2H do projeto" width="1100" height="619" loading="lazy">
+          </a>
+          <div class="doc-corpo">
+            <span class="doc-tipo">PDF · Planejamento</span>
+            <h3>5W2H</h3>
+            <p>O quê, por quê, onde, quando, quem, como e quanto: o plano do totem, do mockup à manufatura, com dados do
+              radar SAR e interface acessível.</p>
+            <div class="doc-acoes">
+              <a class="botao botao-pequeno" href="../5w2h.pdf" target="_blank" rel="noopener">Abrir PDF</a>
+              <a class="botao botao-pequeno botao-fantasma" href="../5w2h.pdf" download>Baixar</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="rodape">
+    <img src="assets/logo.svg" alt="FRAPC by Cosmos" width="250" height="120" class="rodape-logo">
+    <div class="rodape-texto">
+      <p><b>Projeto Cosmos</b> — alerta de alagamento e deslizamento para Manaus · NASA Space Apps · Manaus 2026.</p>
+      <p class="rodape-tel">Emergência: Defesa Civil <b>199</b> · Bombeiros <b>193</b> · SAMU <b>192</b></p>
+    </div>
+    <p class="rodape-credito">Imagens de satélite © Esri, Maxar · Mapas © OpenStreetMap · Dados de radar ESA / NASA · Imagens marcadas como IA são ilustrativas</p>
+    <p class="rodape-marca" aria-hidden="true">COSMOS</p>
+  </footer>
+
+  <script src="js/site.js"></script>
+</body>
+</html>
