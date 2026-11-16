@@ -56,6 +56,9 @@ p { margin: 0; }
 
 /* ---------- Botões ---------- */
 .botao {
+  --preenche: #fff;
+  --texto-hover: var(--tinta);
+  position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; gap: .6em;
   padding: .95em 1.5em;
   border: 2px solid var(--laranja);
@@ -65,11 +68,33 @@ p { margin: 0; }
   font: 600 1rem/1 var(--f-titulo);
   text-decoration: none;
   cursor: pointer;
-  transition: transform .35s var(--suave-saida), background .25s, color .25s;
+  transition: color .45s var(--suave-saida), border-color .45s var(--suave-saida), transform .2s ease;
 }
-.botao:hover { transform: translateY(-2px); background: #ffb23d; }
-.botao-fantasma { background: transparent; color: currentColor; border-color: currentColor; }
-.botao-fantasma:hover { background: rgba(255, 255, 255, .08); }
+/* Preenchimento que sobe de baixo, com a borda superior curva como uma onda */
+.botao::before {
+  content: ""; position: absolute; z-index: -1;
+  left: -10%; right: -10%; top: 0; height: 100%;
+  background: var(--preenche);
+  border-radius: 50% 50% 0 0 / 60% 60% 0 0;
+  transform: translateY(105%);
+  transition: transform .55s var(--suave-saida), border-radius .55s var(--suave-saida);
+}
+@media (hover: hover) {
+  .botao:hover::before { transform: translateY(0); border-radius: 0; }
+  .botao:hover { color: var(--texto-hover); border-color: var(--preenche); }
+  .botao:hover .botao-texto { transform: translateY(-1.5em); }
+  .botao:hover .icone-play { transform: translateX(3px) scale(1.15); }
+}
+.botao:focus-visible::before { transform: translateY(0); border-radius: 0; }
+.botao:focus-visible { color: var(--texto-hover); border-color: var(--preenche); }
+.botao:active { transform: scale(.96); }
+/* Texto rola para cima: a sombra é a cópia que entra por baixo */
+.botao-rotulo { display: inline-block; overflow: hidden; line-height: 1.15; height: 1.15em; }
+.botao-texto { display: inline-block; text-shadow: 0 1.5em currentColor; transition: transform .5s var(--suave-saida); }
+.botao:focus-visible .botao-texto { transform: translateY(-1.5em); }
+.botao .icone-play { transition: transform .5s var(--suave-saida); }
+
+.botao-fantasma { background: transparent; color: currentColor; border-color: currentColor; --preenche: #fff; --texto-hover: var(--noite); }
 .botao-pequeno { padding: .7em 1.15em; font-size: .9rem; }
 .icone-play { width: 0; height: 0; border-left: .62em solid currentColor; border-top: .38em solid transparent; border-bottom: .38em solid transparent; }
 
@@ -222,9 +247,10 @@ section { position: relative; }
 /* ---------- Vídeo ---------- */
 .video { padding: clamp(80px, 12vw, 150px) var(--margem); background: var(--noite); color: #e8eef7; }
 .video-moldura { position: relative; max-width: 1240px; margin: 0 auto; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 18px; background: #000; box-shadow: 0 50px 120px rgba(0, 0, 0, .5); }
-.video-capa, .video-moldura iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
-.video-capa { transition: transform 1.4s var(--suave-saida), filter .6s; }
-.video-moldura:hover .video-capa { transform: scale(1.04); filter: brightness(.85); }
+.video-moldura video, .video-moldura iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; background: #000; }
+.video-moldura video { transition: transform 1.4s var(--suave-saida), filter .6s; }
+.video-moldura:not(.tocando):hover video { transform: scale(1.04); filter: brightness(.85); }
+.video-moldura.tocando video { object-fit: contain; }
 .video-link { margin-top: 18px; text-align: center; font: 500 .82rem/1 var(--f-mono); letter-spacing: .08em; }
 .video-link a { color: var(--nevoa); text-decoration: none; border-bottom: 1px solid rgba(159, 176, 200, .4); padding-bottom: 3px; transition: color .2s, border-color .2s; }
 .video-link a:hover { color: #fff; border-color: var(--laranja); }
@@ -299,8 +325,8 @@ section { position: relative; }
 .chamada h2 { max-width: 1100px; margin: 0 auto; font-size: clamp(2.6rem, 6.5vw, 6rem); letter-spacing: -.045em; }
 .chamada h2 em { display: block; color: var(--azul); }
 .chamada-acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 44px; }
-.chamada .botao-fantasma { color: var(--tinta); }
-.chamada .botao-fantasma:hover { background: rgba(17, 24, 39, .06); }
+.chamada .botao, .doc .botao { --preenche: var(--tinta); --texto-hover: var(--papel); }
+.chamada .botao-fantasma, .doc .botao-fantasma { color: var(--tinta); }
 
 /* ---------- Rodapé ---------- */
 .rodape { display: grid; grid-template-columns: auto 1fr; gap: 18px 32px; align-items: center; padding: 48px var(--margem); background: var(--noite); color: #c4d0e1; font-size: .95rem; }
@@ -357,7 +383,6 @@ section { position: relative; }
 .doc h3 { font-size: 1.35rem; letter-spacing: -.02em; line-height: 1.15; }
 .doc p { font-size: .93rem; color: var(--suave); }
 .doc-acoes { display: flex; gap: 10px; margin-top: auto; padding-top: 8px; }
-.doc .botao-fantasma { color: var(--tinta); }
 
 /* ---------- Assinatura gigante do rodapé ---------- */
 .rodape { overflow: hidden; }
@@ -372,6 +397,31 @@ section { position: relative; }
   .rodape-marca { animation: preenche linear both; animation-timeline: view(); animation-range: entry 10% cover 60%; }
   @keyframes preenche { to { background-size: 100% 100%; } }
 }
+
+/* ---------- Cursor próprio (só com mouse) ---------- */
+.cursor-ativo, .cursor-ativo * { cursor: none !important; }
+.cursor { position: fixed; inset: 0; z-index: 400; pointer-events: none; opacity: 0; mix-blend-mode: difference; transition: opacity .3s; }
+.cursor.visivel { opacity: 1; }
+.cursor.com-rotulo { mix-blend-mode: normal; }
+.cursor-ponto, .cursor-anel { position: absolute; left: 0; top: 0; border-radius: 50%; will-change: transform; }
+.cursor-ponto { width: 8px; height: 8px; margin: -4px 0 0 -4px; background: #fff; transition: width .25s, height .25s, margin .25s; }
+.cursor-anel {
+  width: 38px; height: 38px; margin: -19px 0 0 -19px;
+  display: grid; place-items: center;
+  border: 1.5px solid #fff;
+  transition: width .45s var(--suave-saida), height .45s var(--suave-saida), margin .45s var(--suave-saida), background .3s, border-color .3s;
+}
+.cursor.sobre .cursor-anel { width: 66px; height: 66px; margin: -33px 0 0 -33px; background: #fff; }
+.cursor.sobre .cursor-ponto { width: 0; height: 0; margin: 0; }
+.cursor.com-rotulo .cursor-anel { width: 104px; height: 104px; margin: -52px 0 0 -52px; background: var(--laranja); border-color: var(--laranja); }
+.cursor.com-rotulo .cursor-ponto { width: 0; height: 0; margin: 0; }
+.cursor-rotulo { font: 600 .8rem/1 var(--f-titulo); letter-spacing: .02em; color: var(--tinta); opacity: 0; transform: scale(.6); transition: opacity .25s, transform .45s var(--suave-saida); }
+.cursor.com-rotulo .cursor-rotulo { opacity: 1; transform: none; }
+.cursor.apertado .cursor-anel { width: 28px; height: 28px; margin: -14px 0 0 -14px; }
+.cursor.sobre.apertado .cursor-anel { width: 52px; height: 52px; margin: -26px 0 0 -26px; }
+/* Respingo de gota no clique */
+.cursor-respingo { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid #fff; animation: respingo .65s var(--suave-saida) forwards; }
+@keyframes respingo { to { transform: scale(5.5); opacity: 0; border-width: .5px; } }
 
 /* ---------- Revelar ao rolar ---------- */
 .js [data-revela] { opacity: 0; transform: translateY(34px); transition: opacity .9s var(--suave-saida), transform .9s var(--suave-saida); transition-delay: calc(var(--i, 0) * 90ms); }

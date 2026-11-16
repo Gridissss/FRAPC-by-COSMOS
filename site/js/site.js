@@ -180,27 +180,57 @@
     Array.prototype.forEach.call(document.querySelectorAll(".conta"), function (el) { el.textContent = el.getAttribute("data-alvo"); });
   }
 
-  /* ---------- Vídeo do YouTube (só carrega ao clicar) ---------- */
+  /* ---------- Vídeo: arquivo próprio tocando na página; YouTube como reserva ---------- */
 
   var moldura = document.getElementById("video-moldura");
   var play = document.getElementById("video-play");
+  var video = document.getElementById("video-cosmos");
+
+  function trocarPorYoutube() {
+    var id = moldura.getAttribute("data-youtube");
+    // Sem origem http o YouTube recusa o player embutido: só resta abrir em outra aba
+    if (!/^https?:$/.test(location.protocol)) {
+      window.open("https://www.youtube.com/watch?v=" + encodeURIComponent(id), "_blank", "noopener");
+      moldura.classList.remove("tocando");
+      return;
+    }
+    if (video) video.remove();
+    var player = document.createElement("iframe");
+    player.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1";
+    player.title = "Vídeo do Projeto Cosmos no YouTube";
+    player.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    player.referrerPolicy = "strict-origin-when-cross-origin";
+    player.allowFullscreen = true;
+    moldura.appendChild(player);
+    moldura.classList.add("tocando");
+  }
+
   if (moldura && play) {
+    var querTocar = false;
     play.addEventListener("click", function () {
-      var id = moldura.getAttribute("data-youtube");
-      // O YouTube recusa embed em página aberta direto do disco (sem origem http): abre em nova aba
-      if (!/^https?:$/.test(location.protocol)) {
-        window.open("https://www.youtube.com/watch?v=" + encodeURIComponent(id), "_blank", "noopener");
-        return;
-      }
-      var player = document.createElement("iframe");
-      player.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(id) + "?autoplay=1&rel=0&playsinline=1&modestbranding=1";
-      player.title = "Vídeo do Projeto Cosmos no YouTube";
-      player.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      player.referrerPolicy = "strict-origin-when-cross-origin";
-      player.allowFullscreen = true;
-      moldura.appendChild(player);
+      if (!video) { trocarPorYoutube(); return; }
       moldura.classList.add("tocando");
+      video.controls = true;
+      querTocar = true;
+      var tentativa = video.play();
+      // AbortError só significa que o navegador trocou de formato no meio; não é falha
+      if (tentativa && tentativa.catch) tentativa.catch(function (e) { if (e && e.name === "NotSupportedError") trocarPorYoutube(); });
     });
+    if (video) {
+      // Se o play foi abortado na troca WebM -> MP4, retoma quando o formato que funciona carregar
+      video.addEventListener("canplay", function () {
+        if (querTocar && video.paused) video.play().catch(function () {});
+      });
+      video.addEventListener("playing", function () { querTocar = false; });
+      // Erro no último <source> = nenhum formato funcionou neste navegador
+      var fontes = video.querySelectorAll("source");
+      if (fontes.length) fontes[fontes.length - 1].addEventListener("error", trocarPorYoutube);
+      video.addEventListener("ended", function () {
+        video.controls = false;
+        moldura.classList.remove("tocando");
+        video.load();
+      });
+    }
   }
 
   /* ---------- Janela de documentos ("Ver mais detalhes") ---------- */
@@ -249,16 +279,96 @@
       });
     });
 
-    // Botões principais "puxados" pelo cursor
-    Array.prototype.forEach.call(document.querySelectorAll(".hero-acoes .botao, .chamada-acoes .botao"), function (b) {
-      b.addEventListener("pointermove", function (e) {
-        var r = b.getBoundingClientRect();
-        var dx = e.clientX - (r.left + r.width / 2);
-        var dy = e.clientY - (r.top + r.height / 2);
-        b.style.transform = "translate(" + (dx * .22).toFixed(1) + "px," + (dy * .32).toFixed(1) + "px)";
-      });
-      b.addEventListener("pointerleave", function () { b.style.transform = ""; });
+    iniciarCursor();
+  }
+
+  /* ---------- Botões: texto que rola para cima no hover ---------- */
+
+  Array.prototype.forEach.call(document.querySelectorAll(".botao"), function (b) {
+    Array.prototype.slice.call(b.childNodes).forEach(function (no) {
+      if (no.nodeType !== 3 || !no.textContent.trim()) return;
+      var rotulo = document.createElement("span");
+      rotulo.className = "botao-rotulo";
+      var texto = document.createElement("span");
+      texto.className = "botao-texto";
+      texto.textContent = no.textContent.trim();
+      rotulo.appendChild(texto);
+      b.replaceChild(rotulo, no);
     });
+  });
+
+  /* ---------- Cursor próprio: ponto + anel que segue com atraso, cresce sobre o que é clicável ---------- */
+
+  function iniciarCursor() {
+    var raiz = document.createElement("div");
+    raiz.className = "cursor";
+    raiz.setAttribute("aria-hidden", "true");
+    raiz.innerHTML = '<span class="cursor-anel"><span class="cursor-rotulo"></span></span><span class="cursor-ponto"></span>';
+    document.body.appendChild(raiz);
+    document.documentElement.classList.add("cursor-ativo");
+
+    var anel = raiz.querySelector(".cursor-anel");
+    var ponto = raiz.querySelector(".cursor-ponto");
+    var rotulo = raiz.querySelector(".cursor-rotulo");
+    var mx = -100, my = -100, ax = -100, ay = -100;
+    var visivel = false;
+
+    function mostrar(sim) {
+      if (sim === visivel) return;
+      visivel = sim;
+      raiz.classList.toggle("visivel", sim);
+    }
+
+    document.addEventListener("pointermove", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      mx = e.clientX;
+      my = e.clientY;
+      ponto.style.transform = "translate(" + mx + "px," + my + "px)";
+      if (!visivel) { ax = mx; ay = my; }
+      mostrar(true);
+    }, { passive: true });
+
+    // Iframes (totem, YouTube) e saída da janela: o cursor nativo assume
+    document.addEventListener("pointerout", function (e) {
+      if (!e.relatedTarget || e.relatedTarget.tagName === "IFRAME") mostrar(false);
+    });
+
+    var SELETOR = "a, button, [data-cursor], .simulador button, .doc-capa";
+    document.addEventListener("pointerover", function (e) {
+      var alvo = e.target.closest ? e.target.closest(SELETOR) : null;
+      if (alvo && alvo.closest(".tocando")) alvo = null;
+      var texto = alvo ? alvo.getAttribute("data-cursor") || "" : "";
+      raiz.classList.toggle("sobre", !!alvo && !texto);
+      raiz.classList.toggle("com-rotulo", !!texto);
+      if (texto) rotulo.textContent = texto;
+    });
+
+    document.addEventListener("pointerdown", function (e) {
+      raiz.classList.add("apertado");
+      // Respingo de gota onde clicou
+      var gota = document.createElement("span");
+      gota.className = "cursor-respingo";
+      gota.style.left = e.clientX + "px";
+      gota.style.top = e.clientY + "px";
+      raiz.appendChild(gota);
+      setTimeout(function () { gota.remove(); }, 700);
+    });
+    document.addEventListener("pointerup", function () { raiz.classList.remove("apertado"); });
+
+    // A janela de documentos fica numa camada acima de tudo: o cursor vai junto
+    var janela = document.getElementById("docs");
+    if (janela) {
+      new MutationObserver(function () {
+        (janela.open ? janela : document.body).appendChild(raiz);
+      }).observe(janela, { attributes: true, attributeFilter: ["open"] });
+    }
+
+    (function seguir() {
+      ax += (mx - ax) * .18;
+      ay += (my - ay) * .18;
+      anel.style.transform = "translate(" + ax.toFixed(1) + "px," + ay.toFixed(1) + "px)";
+      requestAnimationFrame(seguir);
+    })();
   }
 
   /* ---------- Faixa de bairros: anda sozinha e acelera com a rolagem ---------- */

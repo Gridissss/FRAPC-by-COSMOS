@@ -83,3 +83,6 @@ modelos/*
 # Vídeo bruto do projeto (publicado no YouTube: https://www.youtube.com/watch?v=61hn_QcZrLA)
 *.mp4
 *.webm
+# Versões leves (~5 MB) que tocam dentro do site
+!site/assets/video-cosmos.mp4
+!site/assets/video-cosmos.webm

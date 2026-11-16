@@ -448,7 +448,13 @@ Página de apresentação do Projeto Cosmos com o vídeo do projeto e o totem ro
 
 - Abra `site/index.html` no navegador (ou sirva a pasta do projeto com qualquer servidor estático). O totem embutido é o próprio `index.html` da raiz em **modo vitrine** (`index.html?vitrine`): sem painel de teste, sem voz, com os dados de exemplo de `js/dados.js` — nunca mostra "sem conexão" na apresentação.
 - Ao rolar a seção "Como funciona", cada passo troca a tela do totem; os botões "Simule a chuva" mudam o nível (o site conversa com o totem por `postMessage`).
-- **Vídeo:** vem do YouTube ([61hn_QcZrLA](https://www.youtube.com/watch?v=61hn_QcZrLA)) e só carrega ao clicar. Aberto direto do disco (`file://`) o YouTube recusa o player embutido, então o botão abre o vídeo numa aba nova; servido por HTTP ele toca dentro da página.
+- **Vídeo:** toca dentro da página a partir de versões leves (`site/assets/video-cosmos.webm` e `.mp4`, ~5 MB cada) geradas do `video nasa apps.mp4`; se o navegador não conseguir tocar nenhum dos dois, usa o player do YouTube ([61hn_QcZrLA](https://www.youtube.com/watch?v=61hn_QcZrLA)). Para regerar:
+  ```bash
+  ffmpeg -i "video nasa apps.mp4" -vf scale=1280:-2 -c:v libx264 -crf 27 -preset slow -pix_fmt yuv420p -c:a aac -b:a 112k -movflags +faststart site/assets/video-cosmos.mp4
+  ffmpeg -i "video nasa apps.mp4" -vf scale=1280:-2 -c:v libvpx-vp9 -b:v 0 -crf 37 -row-mt 1 -c:a libopus -b:a 96k site/assets/video-cosmos.webm
+  ```
+- **Abra por http** (recomendado): na raiz do projeto rode `python -m http.server 8080` e acesse **http://localhost:8080/site/**. Aberto direto do disco (`file://`), alguns navegadores — como o navegador embutido do VS Code — bloqueiam vídeo e o YouTube recusa o player embutido.
+- **Cursor:** com mouse, o site usa um cursor próprio (ponto + anel que segue com atraso, cresce sobre botões, mostra "Assistir"/"Abrir" no vídeo e nos PDFs e faz um respingo no clique). No celular e com "reduzir movimento" fica o cursor normal.
 - **Ver mais detalhes / Documentos:** abre uma janela com os PDFs da raiz do projeto (`as pessoas que vivem em situações de periferia e ribeirinhos.pdf` — Storytelling Canvas — e `5w2h.pdf`), com capa, "Abrir PDF" e "Baixar".
 - Imagens ilustrativas ou geradas por IA aparecem com selo indicando isso.
 - Para publicar, suba a pasta do projeto inteira (o site usa `../index.html`, `../js`, `../css` e os PDFs da raiz).

@@ -170,8 +170,11 @@
         <h2 id="titulo-video">Um botão, dados da NASA <em>e menos gente pega de surpresa</em>.</h2>
       </header>
       <div class="video-moldura" id="video-moldura" data-youtube="61hn_QcZrLA">
-        <img class="video-capa" src="assets/poster.jpg" alt="" width="1600" height="900">
-        <button type="button" class="video-play" id="video-play" aria-label="Assistir ao vídeo do Projeto Cosmos no YouTube">
+        <video id="video-cosmos" poster="assets/poster.jpg" preload="none" playsinline>
+          <source src="assets/video-cosmos.webm" type="video/webm">
+          <source src="assets/video-cosmos.mp4" type="video/mp4">
+        </video>
+        <button type="button" class="video-play" id="video-play" data-cursor="Assistir" aria-label="Assistir ao vídeo do Projeto Cosmos">
           <span class="video-play-disco"><span class="icone-play" aria-hidden="true"></span></span>
           <span class="video-play-texto">Assistir · 0:30</span>
         </button>
@@ -316,7 +319,7 @@
       </header>
       <div class="docs-lista">
         <article class="doc">
-          <a class="doc-capa" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">
+          <a class="doc-capa" data-cursor="Abrir" href="../as%20pessoas%20que%20vivem%20em%20situa%C3%A7%C3%B5es%20de%20periferia%20e%20ribeirinhos.pdf" target="_blank" rel="noopener">
             <img src="assets/doc-canvas.jpg" alt="Primeira página do Storytelling Canvas do projeto" width="1100" height="778" loading="lazy">
           </a>
           <div class="doc-corpo">
@@ -331,7 +334,7 @@
           </div>
         </article>
         <article class="doc">
-          <a class="doc-capa" href="../5w2h.pdf" target="_blank" rel="noopener">
+          <a class="doc-capa" data-cursor="Abrir" href="../5w2h.pdf" target="_blank" rel="noopener">
             <img src="assets/doc-5w2h.jpg" alt="Primeira página do 5W2H do projeto" width="1100" height="619" loading="lazy">
           </a>
           <div class="doc-corpo">
